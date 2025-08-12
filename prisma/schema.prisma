@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  image        String?
+  technologies String   // JSON string of array for SQLite compatibility
+  github       String
+  demo         String
+  featured     Boolean  @default(false)
+  status       String   @default("completed") // completed, in-progress, planned
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("projects")
+}

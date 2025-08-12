@@ -58,6 +58,13 @@ export default function MobileMenu() {
             >
               Contact
             </a>
+            <a
+              href="/admin"
+              className="block text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-lg"
+              onClick={closeMenu}
+            >
+              Admin
+            </a>
           </div>
         </div>
       )}

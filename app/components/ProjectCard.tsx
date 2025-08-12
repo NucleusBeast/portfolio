@@ -1,14 +1,5 @@
 import Image from 'next/image';
-
-interface Project {
-  id: number;
-  title: string;
-  description: string;
-  image: string;
-  technologies: string[];
-  github: string;
-  demo: string;
-}
+import { Project } from '@/lib/database';
 
 interface ProjectCardProps {
   project: Project;

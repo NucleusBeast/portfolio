@@ -3,9 +3,13 @@ import ProjectCard from './components/ProjectCard';
 import Skills from './components/Skills';
 import ContactForm from './components/ContactForm';
 import MobileMenu from './components/MobileMenu';
+import { getFeaturedProjects } from '@/lib/database';
 
-export default function Home() {
-  const projects = [
+export default async function Home() {
+
+  const projects = await getFeaturedProjects();
+
+  /*const projects = [
     {
       id: 1,
       title: "E-Commerce Platform",
@@ -60,8 +64,9 @@ export default function Home() {
       github: "https://github.com/yourusername/blockchain-voting",
       demo: "https://your-voting-dapp.netlify.app",
     },
-  ];
+  ];*/
 
+  // @ts-ignore
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Navigation */}
@@ -83,6 +88,9 @@ export default function Home() {
               <a href="#contact" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Contact
               </a>
+              <a href="/admin" className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                Admin
+              </a>
             </div>
 
             {/* Mobile Navigation */}
@@ -102,7 +110,7 @@ export default function Home() {
               About Me
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              I'm a passionate software developer with expertise in modern web technologies and a love for creating 
+              I&#39;m a passionate software developer with expertise in modern web technologies and a love for creating
               innovative solutions that make a difference.
             </p>
           </div>
@@ -115,7 +123,7 @@ export default function Home() {
                 </h3>
                 <div className="space-y-4 text-gray-600 dark:text-gray-300">
                   <p>
-                    With over 5 years of experience in software development, I've had the opportunity to work on 
+                    With over 5 years of experience in software development, I&#39;ve had the opportunity to work on
                     diverse projects ranging from small business websites to large-scale enterprise applications.
                   </p>
                   <p>
@@ -124,7 +132,7 @@ export default function Home() {
                     problems through clean, efficient code.
                   </p>
                   <p>
-                    When I'm not coding, you can find me contributing to open source projects, mentoring aspiring 
+                    When I&#39;m not coding, you can find me contributing to open source projects, mentoring aspiring
                     developers, or exploring the latest trends in technology and design.
                   </p>
                 </div>
@@ -181,7 +189,7 @@ export default function Home() {
               Featured Projects
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Here are some of the projects I've worked on. Each project represents a unique challenge and 
+              Here are some of the projects I&#39;ve worked on. Each project represents a unique challenge and
               showcases different aspects of my technical skills.
             </p>
           </div>
@@ -213,11 +221,11 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              Let's Work Together
+              Let&#39;s Work Together
             </h2>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              I'm always interested in new opportunities and exciting projects. 
-              Feel free to reach out if you'd like to collaborate or just say hello!
+              I&#39;m always interested in new opportunities and exciting projects.
+              Feel free to reach out if you&#39;d like to collaborate or just say hello!
             </p>
           </div>
           
