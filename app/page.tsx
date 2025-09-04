@@ -9,64 +9,6 @@ export default async function Home() {
 
   const projects = await getFeaturedProjects();
 
-  /*const projects = [
-    {
-      id: 1,
-      title: "E-Commerce Platform",
-      description: "A full-stack e-commerce solution built with Next.js, TypeScript, and Stripe integration for payment processing. Features include user authentication, product catalog, shopping cart, and order management.",
-      image: "/project1.jpg",
-      technologies: ["Next.js", "TypeScript", "Stripe", "Tailwind CSS", "PostgreSQL"],
-      github: "https://github.com/yourusername/ecommerce-platform",
-      demo: "https://your-ecommerce-demo.vercel.app",
-    },
-    {
-      id: 2,
-      title: "Task Management App",
-      description: "A collaborative task management application with real-time updates, user authentication, and team collaboration features. Built with modern React patterns and WebSocket integration.",
-      image: "/project2.jpg",
-      technologies: ["React", "Node.js", "Socket.io", "MongoDB", "Express"],
-      github: "https://github.com/yourusername/task-manager",
-      demo: "https://your-task-manager.vercel.app",
-    },
-    {
-      id: 3,
-      title: "Data Visualization Dashboard",
-      description: "An interactive dashboard for visualizing complex datasets with charts, filters, and real-time data updates. Perfect for business intelligence and analytics.",
-      image: "/project3.jpg",
-      technologies: ["Vue.js", "D3.js", "Python", "FastAPI", "Redis"],
-      github: "https://github.com/yourusername/data-dashboard",
-      demo: "https://your-dashboard-demo.vercel.app",
-    },
-    {
-      id: 4,
-      title: "Mobile Fitness App",
-      description: "A React Native mobile application for fitness tracking with workout plans, progress monitoring, and social features. Includes offline support and device integration.",
-      image: "/project4.jpg",
-      technologies: ["React Native", "Expo", "Node.js", "MongoDB", "JWT"],
-      github: "https://github.com/yourusername/fitness-app",
-      demo: "https://your-fitness-app.expo.dev",
-    },
-    {
-      id: 5,
-      title: "AI Chat Assistant",
-      description: "An intelligent chat assistant powered by OpenAI API with custom knowledge base integration. Features conversation memory and context awareness.",
-      image: "/project5.jpg",
-      technologies: ["Python", "FastAPI", "OpenAI API", "Vector DB", "Docker"],
-      github: "https://github.com/yourusername/ai-chat-assistant",
-      demo: "https://your-ai-chat.herokuapp.com",
-    },
-    {
-      id: 6,
-      title: "Blockchain Voting System",
-      description: "A secure and transparent voting system built on Ethereum blockchain with smart contracts. Ensures vote integrity and provides real-time results.",
-      image: "/project6.jpg",
-      technologies: ["Solidity", "Web3.js", "React", "Truffle", "IPFS"],
-      github: "https://github.com/yourusername/blockchain-voting",
-      demo: "https://your-voting-dapp.netlify.app",
-    },
-  ];*/
-
-  // @ts-ignore
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       {/* Navigation */}
@@ -202,7 +144,7 @@ export default async function Home() {
 
           <div className="text-center mt-12">
             <a
-              href="https://github.com/yourusername"
+              href="https://github.com/nucleusbeast"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center bg-gray-900 dark:bg-gray-700 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-800 dark:hover:bg-gray-600 transition-colors"
@@ -290,7 +232,7 @@ export default async function Home() {
                   </a>
                   
                   <a
-                    href="https://github.com/yourusername"
+                    href="https://github.com/nucleusbeast"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-gray-800 text-white rounded-lg flex items-center justify-center hover:bg-gray-700 transition-colors"
@@ -301,7 +243,7 @@ export default async function Home() {
                   </a>
                   
                   <a
-                    href="https://twitter.com/yourusername"
+                    href="https://twitter.com/nucleusbeast"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-12 h-12 bg-blue-400 text-white rounded-lg flex items-center justify-center hover:bg-blue-500 transition-colors"
