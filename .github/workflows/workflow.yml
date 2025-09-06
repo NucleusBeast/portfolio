@@ -1,0 +1,54 @@
+name: Build Next.js and Trigger Webhook
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build Next.js
+        run: npm run build
+
+      - name: Export Next.js (optional)
+        run: npm run export || echo "Skipping export"
+
+      - name: Package Build Output
+        run: |
+          mkdir -p artifact
+          cp -r .next artifact/
+          cp -r public artifact/
+          cp -r package.json artifact/
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nextjs-build
+          path: artifact
+
+      - name: Trigger Webhook on Server
+        uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.WEBHOOK_URL }}
+          method: POST
+          headers: |
+            Content-Type: application/json
+          body: |
+            {
+              "repository": "${{ github.repository }}",
+              "run_id": "${{ github.run_id }}"
+            }
