@@ -92,8 +92,17 @@ export async function updateProject(id: number, data: Partial<{
   featured: boolean;
   status: string;
 }>): Promise<Project> {
-  const updateData: any = { ...data };
-  
+  const updateData: Partial<{
+    title: string;
+    description: string;
+    image: string;
+    technologies: string[];
+    github: string;
+    demo: string;
+    featured: boolean;
+    status: string;
+  }> = { ...data };
+
   if (data.technologies) {
     updateData.technologies = JSON.stringify(data.technologies);
   }

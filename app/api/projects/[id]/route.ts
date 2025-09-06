@@ -1,14 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getProjectById, updateProject, deleteProject } from '@/lib/database';
 
 // GET /api/projects/[id] - Get project by ID
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const id = parseInt(params.id);
-    
+
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid project ID' },
@@ -37,12 +37,12 @@ export async function GET(
 
 // PUT /api/projects/[id] - Update project
 export async function PUT(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const id = parseInt(params.id);
-    
+
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid project ID' },
@@ -68,7 +68,17 @@ export async function PUT(
       );
     }
     
-    const updateData: any = {
+    type UpdateData = {
+      title: string;
+      description: string;
+      github: string;
+      demo: string;
+      image?: string;
+      technologies?: string[];
+      featured?: boolean;
+      status?: string;
+    };
+    const updateData: UpdateData = {
       title,
       description,
       github,
@@ -94,12 +104,12 @@ export async function PUT(
 
 // DELETE /api/projects/[id] - Delete project
 export async function DELETE(
-  request: NextRequest,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
     const id = parseInt(params.id);
-    
+
     if (isNaN(id)) {
       return NextResponse.json(
         { error: 'Invalid project ID' },

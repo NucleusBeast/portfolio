@@ -43,13 +43,15 @@ export default function Skills() {
       { threshold: 0.3 }
     );
 
-    if (skillsRef.current) {
-      observer.observe(skillsRef.current);
+    const ref = skillsRef.current;
+
+    if (ref) {
+      observer.observe(ref);
     }
 
     return () => {
-      if (skillsRef.current) {
-        observer.unobserve(skillsRef.current);
+      if (ref) {
+        observer.unobserve(ref);
       }
     };
   }, []);

@@ -29,7 +29,7 @@ export default function Hero() {
           
           {/* Main Heading */}
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-4">
-            Hi, I'm{' '}
+            Hi, I&apos;m{' '}
             <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               NucleusBeast
             </span>
