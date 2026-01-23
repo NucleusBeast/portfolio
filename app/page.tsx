@@ -1,4 +1,7 @@
 import Image from "next/image";
+import { Button } from "@/components/ui/button"
+import {ModeToggle} from "@/components/mode-toggle";
+import { Link } from "lucide-react";
 
 export default function Home() {
   return (
@@ -9,6 +12,12 @@ export default function Home() {
 
 
         <p> I am NucleusBeast, a passionate developer and designer.</p>
+
+        <Button>
+            <Link href={"/admin"}>Click me</Link>
+        </Button>
+
+        <ModeToggle />
 
         <p>Here is a list of programming languages and frameworks im most versed in:</p>
 
