@@ -5,19 +5,13 @@ import { Link } from "lucide-react";
 
 export default function Home() {
   return (
-    <div>
+    <div className={"justify-center items-center flex flex-col gap-4 mt-10"}>
         <h1 className="text-3xl font-bold">NucleusBeast portfolio!</h1>
 
         <p>Welcome to my portfolio website built with Next.js!</p>
 
 
         <p> I am NucleusBeast, a passionate developer and designer.</p>
-
-        <Button>
-            <Link href={"/admin"}>Click me</Link>
-        </Button>
-
-        <ModeToggle />
 
         <p>Here is a list of programming languages and frameworks im most versed in:</p>
 
@@ -40,12 +34,10 @@ export default function Home() {
             <li>Project 3: Open Source Library</li>
         </ul>
 
-        <Image
-            src="/logo.png"
-            alt="NucleusBeast Profile Picture"
-            width={200}
-            height={200}
-        />
+        <div className="fixed bottom-4 right-4">
+            <ModeToggle />
+        </div>
+
     </div>
   );
 }
