@@ -1,8 +1,11 @@
 import Image from "next/image";
+import { Button } from "@/components/ui/button"
+import {ModeToggle} from "@/components/mode-toggle";
+import { Link } from "lucide-react";
 
 export default function Home() {
   return (
-    <div>
+    <div className={"justify-center items-center flex flex-col gap-4 mt-10"}>
         <h1 className="text-3xl font-bold">NucleusBeast portfolio!</h1>
 
         <p>Welcome to my portfolio website built with Next.js!</p>
@@ -31,12 +34,10 @@ export default function Home() {
             <li>Project 3: Open Source Library</li>
         </ul>
 
-        <Image
-            src="/logo.png"
-            alt="NucleusBeast Profile Picture"
-            width={200}
-            height={200}
-        />
+        <div className="fixed bottom-4 right-4">
+            <ModeToggle />
+        </div>
+
     </div>
   );
 }
