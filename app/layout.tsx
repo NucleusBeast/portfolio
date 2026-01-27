@@ -15,6 +15,8 @@ import {
     NavigationMenuViewport,
 } from "@/components/ui/navigation-menu"
 import Navbar from "@/components/navbar";
+import {ModeToggle} from "@/components/mode-toggle";
+import React from "react";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -45,6 +47,9 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         >
             <Navbar/>
             {children}
+            <div className="fixed bottom-4 right-4">
+                <ModeToggle/>
+            </div>
         </ThemeProvider>
         </body>
         </html>

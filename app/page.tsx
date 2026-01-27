@@ -34,10 +34,6 @@ export default function Home() {
             <li>Project 3: Open Source Library</li>
         </ul>
 
-        <div className="fixed bottom-4 right-4">
-            <ModeToggle />
-        </div>
-
     </div>
   );
 }
