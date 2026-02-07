@@ -25,13 +25,9 @@ export async function proxy(req: NextRequest) {
         }
     );
 
-    console.log("supabase");
-
     const {
         data: { user },
     } = await supabase.auth.getUser();
-
-    console.log("user", user);
 
     const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
 
