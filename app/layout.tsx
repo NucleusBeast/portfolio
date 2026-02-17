@@ -17,6 +17,7 @@ import {
 import Navbar from "@/components/navbar";
 import {ModeToggle} from "@/components/mode-toggle";
 import React from "react";
+import {ConvexClientProvider} from "@/app/ConvexClientProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -46,7 +47,7 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
             disableTransitionOnChange
         >
             <Navbar/>
-            {children}
+            <ConvexClientProvider>{children}</ConvexClientProvider>
             <div className="fixed bottom-4 right-4">
                 <ModeToggle/>
             </div>
