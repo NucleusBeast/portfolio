@@ -23,17 +23,20 @@ import {
 } from "@/components/ui/select";
 import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import {createSkill} from "@/app/admin/skills/actions";
+import {api} from "@/convex/_generated/api";
+import {useMutation} from "convex/react";
 
 export default function NewSkillPage() {
     const router = useRouter();
     const [name, setName] = useState("");
-    const [level, setLevel] = useState("");
+    const [level, setLevel] = useState(0);
     const [category, setCategory] = useState("");
+
+    const createSkill = useMutation(api.skills.post);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        createSkill({name, level, category}).then();
+        createSkill({name, level, category}).then(_ => {});
         router.push("/admin/skills");
     };
 
@@ -69,14 +72,14 @@ export default function NewSkillPage() {
 
                         <div className="space-y-2">
                             <Label htmlFor="level">Proficiency Level</Label>
-                            <Select value={level} onValueChange={setLevel}>
+                            <Select value={level.toString()} onValueChange={(value) => setLevel(Number(value))}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select level"/>
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="Beginner">Beginner</SelectItem>
-                                    <SelectItem value="Intermediate">Intermediate</SelectItem>
-                                    <SelectItem value="Expert">Expert</SelectItem>
+                                    <SelectItem value="0">Beginner</SelectItem>
+                                    <SelectItem value="1">Intermediate</SelectItem>
+                                    <SelectItem value="2">Expert</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>

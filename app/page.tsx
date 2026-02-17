@@ -1,28 +1,19 @@
 "use client";
 
-import Image from "next/image";
-import { Button } from "@/components/ui/button"
-import {ModeToggle} from "@/components/mode-toggle";
-import { Link } from "lucide-react";
 import {useEffect, useState} from "react";
-import {getSkills} from "@/app/admin/skills/actions";
 import {Separator} from "@radix-ui/react-menu";
 import { useQuery } from "convex/react";
 import {api} from "@/convex/_generated/api";
+import {Button} from "@/components/ui/button";
+
+import { useAuthActions } from "@convex-dev/auth/react";
 
 export default function Home() {
-
-    const [skills, setSkills] = useState<Skill[]>([]);
-
+    
+    const { signIn } = useAuthActions();
+    
     useEffect(() => {
-        fetchSkills().then();
     }, []);
-
-    const fetchSkills = async () => {
-        const skills = getSkills();
-        setSkills(await skills);
-        console.log(skills);
-    }
 
     const tasks = useQuery(api.tasks.get);
 
@@ -35,15 +26,9 @@ export default function Home() {
 
         <p> I am NucleusBeast, a passionate developer and designer.</p>
 
-        <p>Here is a list of programming languages and frameworks im most versed in:</p>
+        <p>Here is a list of programming languages and frameworks im most versed in:</p>y
 
-        {tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}
-
-        {skills.map((skill, index) => (
-            <div key={index}>
-                <p>{skill.name} - {skill.level} ({skill.category})</p>
-            </div>
-        ))}
+        {/*{tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}*/}
 
 
         <Separator/>

@@ -3,20 +3,10 @@ import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
 import {ThemeProvider} from "@/components/theme-provider"
-
-import {
-    NavigationMenu,
-    NavigationMenuContent,
-    NavigationMenuIndicator,
-    NavigationMenuItem,
-    NavigationMenuLink,
-    NavigationMenuList,
-    NavigationMenuTrigger,
-    NavigationMenuViewport,
-} from "@/components/ui/navigation-menu"
 import Navbar from "@/components/navbar";
 import {ModeToggle} from "@/components/mode-toggle";
 import React from "react";
+import {ConvexAuthNextjsServerProvider} from "@convex-dev/auth/nextjs/server";
 import {ConvexClientProvider} from "@/app/ConvexClientProvider";
 
 const geistSans = Geist({
@@ -36,23 +26,27 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode; }>) {
     return (
-        <html lang="en" suppressHydrationWarning>
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-        >
-            <Navbar/>
-            <ConvexClientProvider>{children}</ConvexClientProvider>
-            <div className="fixed bottom-4 right-4">
-                <ModeToggle/>
-            </div>
-        </ThemeProvider>
-        </body>
-        </html>
+        <ConvexAuthNextjsServerProvider>
+            <html lang="en" suppressHydrationWarning>
+            <body
+                className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            >
+            <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+            >
+                <ConvexClientProvider>
+                    <Navbar/>
+                    {children}
+                </ConvexClientProvider>
+                <div className="fixed bottom-4 right-4">
+                    <ModeToggle/>
+                </div>
+            </ThemeProvider>
+            </body>
+            </html>
+        </ConvexAuthNextjsServerProvider>
     );
 }

@@ -15,33 +15,34 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import {LockKeyhole, User} from "lucide-react";
-import {createClient} from "@/utils/supabase/client";
+
+import { useAuthActions } from "@convex-dev/auth/react";
 
 
 export default function AdminLoginPage() {
     const router = useRouter();
+
+
+    const { signIn } = useAuthActions();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
+    
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError("");
         setIsLoading(true);
 
-        const supabase = createClient();
-
-        const { error } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
-
-        if (!error) {
-            router.push("/admin");
-            router.refresh(); // IMPORTANT
-        } else {
-            setError("Invalid email or password");
+        try {
+            console.log(email, password, flow);
+            await signIn("password", { email, password, flow });
+        } catch (err) {
+            setError("Invalid credentials.");
+        } finally {
             setIsLoading(false);
         }
     };

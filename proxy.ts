@@ -1,44 +1,23 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
+import {
+    convexAuthNextjsMiddleware,
+    createRouteMatcher,
+    nextjsMiddlewareRedirect,
+} from "@convex-dev/auth/nextjs/server";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+const isSignInPage = createRouteMatcher(["/login"]);
+const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
-
-export async function proxy(req: NextRequest) {
-    const res = NextResponse.next();
-
-    const supabase = createServerClient(
-        supabaseUrl!,
-        supabaseKey!,
-        {
-            cookies: {
-                getAll() {
-                    return req.cookies.getAll();
-                },
-                setAll(cookiesToSet) {
-                    cookiesToSet.forEach(({ name, value, options }) => {
-                        res.cookies.set(name, value, options);
-                    });
-                },
-            },
-        }
-    );
-
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
-
-    const isAdminRoute = req.nextUrl.pathname.startsWith("/admin");
-
-    if (isAdminRoute && !user) {
-        const loginUrl = new URL("/login", req.url);
-        return NextResponse.redirect(loginUrl);
+export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
+    if (isSignInPage(request) && (await convexAuth.isAuthenticated())) {
+        return nextjsMiddlewareRedirect(request, "/admin/projects");
     }
-
-    return res;
-}
+    if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
+        return nextjsMiddlewareRedirect(request, "/login");
+    }
+});
 
 export const config = {
-    matcher: ["/admin/:path*"],
+    // The following matcher runs middleware on all routes
+    // except static assets.
+    matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

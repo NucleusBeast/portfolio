@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LogOut, FolderKanban, Sparkles, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {createClient} from "@/utils/supabase/client";
+import {useAuthActions} from "@convex-dev/auth/react";
 
 const sidebarItems = [
     { label: "Projects", href: "/admin/projects", icon: FolderKanban },
@@ -20,14 +20,6 @@ export default function AdminLayout({children} : {children: React.ReactNode}) {
     const router = useRouter();
     const pathname = usePathname();
     const [isLoading, setIsLoading] = useState(true);
-
-    const handleLogout = async () => {
-        const supabase = createClient();
-
-        await supabase.auth.signOut();
-        router.push("/");
-        router.refresh();
-    };
 
     const getCreateLink = () => {
         if (pathname.includes("/admin/skills")) {
@@ -42,6 +34,8 @@ export default function AdminLayout({children} : {children: React.ReactNode}) {
         }
         return "New Project";
     };
+
+    const { signOut } = useAuthActions();
 
     return (
         <div className="flex min-h-[calc(100vh-65px)]">
@@ -84,7 +78,9 @@ export default function AdminLayout({children} : {children: React.ReactNode}) {
                         <Button
                             variant="ghost"
                             className="w-full justify-start text-muted-foreground hover:text-foreground"
-                            onClick={handleLogout}
+                            onClick={
+                                () => void signOut().then(() => router.push("/"))
+                            }
                         >
                             <LogOut className="mr-2 h-4 w-4" />
                             Logout
