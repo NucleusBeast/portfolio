@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { createClient } from "@/utils/supabase/client";
+import { Authenticated, Unauthenticated, AuthLoading } from "convex/react";
 
 const navItems = [
     { label: "Home", href: "/" },
@@ -17,29 +17,10 @@ const navItems = [
 export default function Navbar() {
     const pathname = usePathname();
     const [username, setUsername] = useState<string | null>(null);
+    
+    
 
     useEffect(() => {
-        const supabase = createClient();
-
-        // Initial user fetch
-        supabase.auth.getUser().then(({ data }) => {
-            const email = data.user?.email;
-            if (email) {
-                setUsername(email.split("@")[0]);
-            }
-        });
-
-        // Listen for auth changes
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange((_event, session) => {
-            const email = session?.user?.email;
-            setUsername(email ? email.split("@")[0] : null);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
     }, []);
 
     return (
@@ -83,7 +64,12 @@ export default function Navbar() {
                             : "text-muted-foreground"
                     )}
                 >
-                    {username ?? "Admin"}
+                    <Unauthenticated>
+                        Sign In
+                    </Unauthenticated>
+                    <Authenticated>
+                        Sign out
+                    </Authenticated>
                 </Link>
             </nav>
         </header>
