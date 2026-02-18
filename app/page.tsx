@@ -15,7 +15,7 @@ export default function Home() {
     useEffect(() => {
     }, []);
 
-    const tasks = useQuery(api.tasks.get);
+    const tasks = useQuery(api.models.tasks.get);
 
   return (
     <div className={"justify-center items-center flex flex-col gap-4 mt-10"}>

@@ -32,7 +32,7 @@ export default function NewSkillPage() {
     const [level, setLevel] = useState(0);
     const [category, setCategory] = useState("");
 
-    const createSkill = useMutation(api.skills.post);
+    const createSkill = useMutation(api.models.skills.post);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

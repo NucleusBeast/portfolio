@@ -21,8 +21,8 @@ import {api} from "@/convex/_generated/api";
 
 export default function SkillsPage() {
 
-    const skills = useQuery(api.skills.get);
-    const deleteSkill = useMutation(api.skills.deleteSkill);
+    const skills = useQuery(api.models.skills.get);
+    const deleteSkill = useMutation(api.models.skills.deleteSkill);
 
     const getLevelColor = (level: number) => {
         switch (level) {

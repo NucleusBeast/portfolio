@@ -10,8 +10,9 @@
 
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
-import type * as skills from "../skills.js";
-import type * as tasks from "../tasks.js";
+import type * as models_admins from "../models/admins.js";
+import type * as models_skills from "../models/skills.js";
+import type * as models_tasks from "../models/tasks.js";
 
 import type {
   ApiFromModules,
@@ -22,8 +23,9 @@ import type {
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
-  skills: typeof skills;
-  tasks: typeof tasks;
+  "models/admins": typeof models_admins;
+  "models/skills": typeof models_skills;
+  "models/tasks": typeof models_tasks;
 }>;
 
 /**

@@ -14,7 +14,10 @@ export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
     if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
         return nextjsMiddlewareRedirect(request, "/login");
     }
-});
+},
+    // 1 hour cookie expiration
+    { cookieConfig: { maxAge: 60 * 60 } }
+);
 
 export const config = {
     // The following matcher runs middleware on all routes
