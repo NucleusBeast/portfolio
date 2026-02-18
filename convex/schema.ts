@@ -4,6 +4,11 @@ import { authTables } from "@convex-dev/auth/server";
 
 export default defineSchema({
     ...authTables,
+    users: defineTable({
+        email: v.optional(v.string()),
+        isAdmin: v.optional(v.boolean()),
+        // other "users" fields...
+    }).index("email", ["email"]),
     projects: defineTable({
         title: v.string(),
         description: v.string(),
@@ -26,4 +31,7 @@ export default defineSchema({
         text: v.string(),
         isCompleted: v.boolean(),
     }),
+    admins: defineTable({
+        email: v.string()
+    })
 });

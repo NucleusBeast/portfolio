@@ -16,35 +16,50 @@ import {
 } from "@/components/ui/card";
 import {LockKeyhole, User} from "lucide-react";
 
-import { useAuthActions } from "@convex-dev/auth/react";
+import {useAuthActions} from "@convex-dev/auth/react";
+import {api} from "@/convex/_generated/api";
+import {useQuery} from "convex/react";
 
 
 export default function AdminLoginPage() {
     const router = useRouter();
 
 
-    const { signIn } = useAuthActions();
+    const {signIn} = useAuthActions();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [flow, setFlow] = useState<"signIn" | "signUp">("signIn");
-    
+    const [step, setStep] = useState<"signIn" | "signUp">("signIn");
+
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
 
     const handleLogin = async (e: React.FormEvent) => {
+        setStep("signIn")
         e.preventDefault();
         setError("");
         setIsLoading(true);
 
         try {
-            console.log(email, password, flow);
-            await signIn("password", { email, password, flow });
+            await signIn("password", {email, password, flow: step});
         } catch (err) {
             setError("Invalid credentials.");
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // for creating an admin account on prod
+    const admins = useQuery(api.models.admins.get);
+    const isAdminAccount = () => {
+
+        for (let admin of admins!) {
+            if (admin.email === email) {
+                return true;
+            }
+        }
+
+        return false;
     };
 
     return (
@@ -101,6 +116,15 @@ export default function AdminLoginPage() {
                         <Button type="submit" className="w-full" disabled={isLoading}>
                             {isLoading ? "Signing in..." : "Sign In"}
                         </Button>
+                        {
+                            isAdminAccount()
+                                ? <Button type="submit" className="w-full mt-2" disabled={isLoading} onClick={
+                                    () =>  setStep("signUp")
+                                }>
+                                    {isLoading ? "Signing up the admin..." : "Sign Up the Admin"}
+                                </Button>
+                                : <></>
+                        }
                     </form>
                 </CardContent>
             </Card>
