@@ -52,6 +52,7 @@ export default function AdminLoginPage() {
     // for creating an admin account on prod
     const admins = useQuery(api.models.admins.get);
     const isAdminAccount = () => {
+        if (!admins) return false;
 
         for (let admin of admins!) {
             if (admin.email === email) {
