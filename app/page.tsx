@@ -28,8 +28,12 @@ export default function Home() {
 
         <p>Here is a list of programming languages and frameworks im most versed in:</p>y
 
-        {/*{tasks?.map(({ _id, text }) => <div key={_id}>{text}</div>)}*/}
-
+        <p>#############################################</p>
+        {tasks?.map(({ _id, text }) => 
+        <div key={_id}>
+          - {text}
+          </div>)}
+          <p>#############################################</p>
 
         <Separator/>
 

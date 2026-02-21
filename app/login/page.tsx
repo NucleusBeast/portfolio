@@ -35,7 +35,6 @@ export default function AdminLoginPage() {
 
 
     const handleLogin = async (e: React.FormEvent) => {
-        setStep("signIn")
         e.preventDefault();
         setError("");
         setIsLoading(true);
@@ -120,7 +119,10 @@ export default function AdminLoginPage() {
                         {
                             isAdminAccount()
                                 ? <Button type="submit" className="w-full mt-2" disabled={isLoading} onClick={
-                                    () =>  setStep("signUp")
+                                    async (e) => {
+                                        setStep("signUp");
+                                        await handleLogin(e as any);
+                                    }
                                 }>
                                     {isLoading ? "Signing up the admin..." : "Sign Up the Admin"}
                                 </Button>
