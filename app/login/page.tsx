@@ -39,6 +39,13 @@ export default function AdminLoginPage() {
         setError("");
         setIsLoading(true);
 
+
+        if(isAdminAccount()){
+            setStep("signUp");
+        } else {
+            setStep("signIn");
+        }
+
         try {
             await signIn("password", {email, password, flow: step});
         } catch (err) {
@@ -120,7 +127,6 @@ export default function AdminLoginPage() {
                             isAdminAccount()
                                 ? <Button type="submit" className="w-full mt-2" disabled={isLoading} onClick={
                                     async (e) => {
-                                        setStep("signUp");
                                         await handleLogin(e as any);
                                     }
                                 }>
