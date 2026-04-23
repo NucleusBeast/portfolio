@@ -1,26 +1,22 @@
-import {
-    convexAuthNextjsMiddleware,
-    createRouteMatcher,
-    nextjsMiddlewareRedirect,
-} from "@convex-dev/auth/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isSignInPage = createRouteMatcher(["/login"]);
+const isSignInPage = createRouteMatcher(["/sign-in(.*)"]);
 const isProtectedRoute = createRouteMatcher(["/admin(.*)"]);
 
-export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
-    if (isSignInPage(request) && (await convexAuth.isAuthenticated())) {
-        return nextjsMiddlewareRedirect(request, "/admin/projects");
-    }
-    if (isProtectedRoute(request) && !(await convexAuth.isAuthenticated())) {
-        return nextjsMiddlewareRedirect(request, "/login");
-    }
-},
-    // 1 hour cookie expiration
-    { cookieConfig: { maxAge: 60 * 60 } }
-);
+export default clerkMiddleware(async (auth, request) => {
+  const { userId, redirectToSignIn } = await auth();
+
+  if (isSignInPage(request) && userId) {
+    return Response.redirect(new URL("/admin/projects", request.url));
+  }
+
+  if (isProtectedRoute(request) && !userId) {
+    return redirectToSignIn({ returnBackUrl: request.url });
+  }
+});
 
 export const config = {
-    // The following matcher runs middleware on all routes
-    // except static assets.
-    matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
+  // The following matcher runs middleware on all routes
+  // except static assets.
+  matcher: ["/((?!.*\\..*|_next).*)", "/", "/(api|trpc)(.*)"],
 };

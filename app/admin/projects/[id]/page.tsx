@@ -2,12 +2,14 @@
 
 import type React from "react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { ArrowLeft, ImagePlus } from "lucide-react";
+import type { Id } from "@/convex/_generated/dataModel";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -15,55 +17,84 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, ImagePlus } from "lucide-react";
-import Link from "next/link";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
-export default function NewProjectPage() {
+export default function EditProjectPage() {
   const router = useRouter();
+  const params = useParams<{ id: string }>();
+  const projectId = params.id as Id<"projects">;
+
+  const project = useQuery(api.models.projects.getById, { id: projectId });
+  const updateProject = useMutation(api.models.projects.update);
+  const generateUploadUrl = useMutation(api.models.projects.generateUploadUrl);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const [existingImageIds, setExistingImageIds] = useState<Id<"_storage">[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newPreviewUrls, setNewPreviewUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const generateUploadUrl = useMutation(api.models.projects.generateUploadUrl);
-  const createProject = useMutation(api.models.projects.create);
+  useEffect(() => {
+    if (!project) {
+      return;
+    }
+
+    setTitle(project.title);
+    setDescription(project.description);
+    setUrl(project.url);
+    setGithubUrl(project.githubUrl ?? "");
+    setExistingImageIds(project.imageIds);
+    setExistingImageUrls(project.imageUrls);
+  }, [project]);
+
+  useEffect(() => {
+    return () => {
+      newPreviewUrls.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
+    };
+  }, [newPreviewUrls]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     if (!selectedFiles || selectedFiles.length === 0) {
-      setFiles([]);
-      setPreviewUrls([]);
       return;
     }
 
-    const nextFiles = Array.from(selectedFiles);
-    setFiles(nextFiles);
-    setPreviewUrls(nextFiles.map((selectedFile) => URL.createObjectURL(selectedFile)));
+    const filesToAdd = Array.from(selectedFiles);
+    setNewFiles((current) => [...current, ...filesToAdd]);
+    setNewPreviewUrls((current) => [
+      ...current,
+      ...filesToAdd.map((file) => URL.createObjectURL(file)),
+    ]);
   };
 
-  const removeImageAtIndex = (targetIndex: number) => {
-    setFiles((current) => current.filter((_, index) => index !== targetIndex));
-    setPreviewUrls((current) => current.filter((_, index) => index !== targetIndex));
+  const removeExistingImage = (index: number) => {
+    setExistingImageIds((current) => current.filter((_, i) => i !== index));
+    setExistingImageUrls((current) => current.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  const removeNewImage = (index: number) => {
+    setNewFiles((current) => current.filter((_, i) => i !== index));
+    setNewPreviewUrls((current) => current.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError("");
+    setIsSubmitting(true);
 
     try {
-      const imageIds: Id<"_storage">[] = [];
+      const uploadedImageIds: Id<"_storage">[] = [];
 
-      for (const file of files) {
+      for (const file of newFiles) {
         const uploadUrl = await generateUploadUrl();
-        const uploadResponse = await fetch(uploadUrl, {
+        const response = await fetch(uploadUrl, {
           method: "POST",
           headers: {
             "Content-Type": file.type,
@@ -71,38 +102,57 @@ export default function NewProjectPage() {
           body: file,
         });
 
-        if (!uploadResponse.ok) {
+        if (!response.ok) {
           throw new Error("Image upload failed");
         }
 
-        const { storageId } = (await uploadResponse.json()) as {
+        const { storageId } = (await response.json()) as {
           storageId: Id<"_storage">;
         };
 
-        imageIds.push(storageId);
+        uploadedImageIds.push(storageId);
       }
 
-      await createProject({
+      await updateProject({
+        id: projectId,
         title,
         description,
         url,
         githubUrl: githubUrl || undefined,
-        imageIds,
+        imageIds: [...existingImageIds, ...uploadedImageIds],
       });
 
       router.push("/admin/projects");
     } catch {
-      setError("Could not create project. Please try again.");
+      setError("Could not update project. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    return () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [previewUrls]);
+  const allPreviewBlocks = useMemo(
+    () => [
+      ...existingImageUrls.map((previewUrl, index) => ({
+        key: `existing-${previewUrl}`,
+        previewUrl,
+        onRemove: () => removeExistingImage(index),
+      })),
+      ...newPreviewUrls.map((previewUrl, index) => ({
+        key: `new-${previewUrl}`,
+        previewUrl,
+        onRemove: () => removeNewImage(index),
+      })),
+    ],
+    [existingImageUrls, newPreviewUrls],
+  );
+
+  if (project === undefined) {
+    return <div className="text-muted-foreground">Loading project...</div>;
+  }
+
+  if (project === null) {
+    return <div className="text-muted-foreground">Project not found.</div>;
+  }
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -116,8 +166,8 @@ export default function NewProjectPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create New Project</CardTitle>
-          <CardDescription>Add a new project to your portfolio</CardDescription>
+          <CardTitle>Edit Project</CardTitle>
+          <CardDescription>Update your project details and images</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -131,9 +181,8 @@ export default function NewProjectPage() {
               <Label htmlFor="title">Project Title</Label>
               <Input
                 id="title"
-                placeholder="My Awesome Project"
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(event) => setTitle(event.target.value)}
                 required
               />
             </div>
@@ -142,15 +191,14 @@ export default function NewProjectPage() {
               <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Describe your project..."
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(event) => setDescription(event.target.value)}
                 rows={4}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Cover Image</Label>
+              <Label htmlFor="image">Add Images</Label>
               <div className="flex gap-2">
                 <Input
                   id="image"
@@ -163,16 +211,16 @@ export default function NewProjectPage() {
                   <ImagePlus className="h-4 w-4" />
                 </Button>
               </div>
-              {previewUrls.length > 0 ? (
+              {allPreviewBlocks.length > 0 ? (
                 <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  {previewUrls.map((previewUrl, index) => (
+                  {allPreviewBlocks.map((item) => (
                     <div
-                      key={previewUrl}
+                      key={item.key}
                       className="relative aspect-video overflow-hidden rounded-lg border bg-muted"
                     >
                       <Image
-                        src={previewUrl}
-                        alt={`Preview ${index + 1}`}
+                        src={item.previewUrl}
+                        alt="Project image"
                         width={960}
                         height={540}
                         className="h-full w-full object-cover"
@@ -183,7 +231,7 @@ export default function NewProjectPage() {
                         variant="destructive"
                         size="sm"
                         className="absolute right-2 top-2"
-                        onClick={() => removeImageAtIndex(index)}
+                        onClick={item.onRemove}
                       >
                         Remove
                       </Button>
@@ -198,9 +246,8 @@ export default function NewProjectPage() {
               <Input
                 id="url"
                 type="url"
-                placeholder="https://example.com/project"
                 value={url}
-                onChange={(e) => setUrl(e.target.value)}
+                onChange={(event) => setUrl(event.target.value)}
                 required
               />
             </div>
@@ -210,15 +257,14 @@ export default function NewProjectPage() {
               <Input
                 id="githubUrl"
                 type="url"
-                placeholder="https://github.com/username/repo"
                 value={githubUrl}
-                onChange={(e) => setGithubUrl(e.target.value)}
+                onChange={(event) => setGithubUrl(event.target.value)}
               />
             </div>
 
             <div className="flex gap-3">
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Creating..." : "Create Project"}
+                {isSubmitting ? "Saving..." : "Save Changes"}
               </Button>
               <Link href="/admin/projects">
                 <Button type="button" variant="outline" disabled={isSubmitting}>

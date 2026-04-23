@@ -1,0 +1,81 @@
+"use client";
+
+import Image from "next/image";
+import { useState } from "react";
+import { ChevronLeft, ChevronRight, ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+type ProjectCarouselProps = {
+  imageUrls: string[];
+  alt: string;
+  className?: string;
+};
+
+export function ProjectCarousel({ imageUrls, alt, className }: ProjectCarouselProps) {
+  const [index, setIndex] = useState(0);
+
+  if (imageUrls.length === 0) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+      </div>
+    );
+  }
+
+  const hasMany = imageUrls.length > 1;
+
+  const showPrev = () => {
+    setIndex((prev) => (prev === 0 ? imageUrls.length - 1 : prev - 1));
+  };
+
+  const showNext = () => {
+    setIndex((prev) => (prev === imageUrls.length - 1 ? 0 : prev + 1));
+  };
+
+  return (
+    <div className={cn("relative h-full w-full", className)}>
+      <Image
+        src={imageUrls[index]}
+        alt={alt}
+        width={640}
+        height={360}
+        className="h-full w-full object-cover"
+        unoptimized
+      />
+      {hasMany ? (
+        <>
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="absolute left-2 top-1/2 h-8 w-8 -translate-y-1/2"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              showPrev();
+            }}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="icon"
+            className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              showNext();
+            }}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 rounded bg-background/80 px-2 py-0.5 text-xs">
+            {index + 1}/{imageUrls.length}
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+}
