@@ -217,14 +217,16 @@ export default function Home() {
                       Details
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </button>
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Visit
-                      <ExternalLink className="h-3.5 w-3.5" />
-                    </a>
+                    {project.url ? (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
                     {project.githubUrl ? (
                       <a
                         href={project.githubUrl}
