@@ -60,7 +60,7 @@ export const create = mutation({
   args: {
     title: v.string(),
     description: v.string(),
-    url: v.string(),
+    url: v.optional(v.string()),
     githubUrl: v.optional(v.string()),
     imageIds: v.optional(v.array(v.id("_storage"))),
   },
@@ -68,7 +68,7 @@ export const create = mutation({
     return ctx.db.insert("projects", {
       title: args.title,
       description: args.description,
-      url: args.url,
+      url: args.url ?? "",
       githubUrl: args.githubUrl,
       imageIds: args.imageIds ?? [],
     });
@@ -80,7 +80,7 @@ export const update = mutation({
     id: v.id("projects"),
     title: v.string(),
     description: v.string(),
-    url: v.string(),
+    url: v.optional(v.string()),
     githubUrl: v.optional(v.string()),
     imageIds: v.optional(v.array(v.id("_storage"))),
   },
@@ -103,7 +103,7 @@ export const update = mutation({
     await ctx.db.patch(args.id, {
       title: args.title,
       description: args.description,
-      url: args.url,
+      url: args.url ?? "",
       githubUrl: args.githubUrl,
       imageIds: nextImageIds,
     });

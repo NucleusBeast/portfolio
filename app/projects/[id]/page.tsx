@@ -1,16 +1,16 @@
 "use client";
 
+import { useQuery } from "convex/react";
+import { ArrowLeft, ExternalLink } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useQuery } from "convex/react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ProjectDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -19,6 +19,7 @@ export default function ProjectDetailsPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
+    void projectId;
     setActiveImageIndex(0);
   }, [projectId]);
 
@@ -59,26 +60,30 @@ export default function ProjectDetailsPage() {
             <h1 className="text-3xl font-semibold">{project.title}</h1>
             <Badge variant="secondary">{project.imageUrls.length} images</Badge>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <a href={project.url} target="_blank" rel="noopener noreferrer">
-              <Button>
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Visit Project
-              </Button>
-            </a>
-            {project.githubUrl ? (
-              <a
-                href={project.githubUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Button variant="outline">
-                  <ExternalLink className="mr-2 h-4 w-4" />
-                  View Source
-                </Button>
-              </a>
-            ) : null}
-          </div>
+          {project.url || project.githubUrl ? (
+            <div className="flex flex-wrap gap-3">
+              {project.url ? (
+                <a href={project.url} target="_blank" rel="noopener noreferrer">
+                  <Button>
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    Visit Project
+                  </Button>
+                </a>
+              ) : null}
+              {project.githubUrl ? (
+                <a
+                  href={project.githubUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Button variant="outline">
+                    <ExternalLink className="mr-2 h-4 w-4" />
+                    View Source
+                  </Button>
+                </a>
+              ) : null}
+            </div>
+          ) : null}
         </header>
 
         <div className="space-y-4">
@@ -130,7 +135,9 @@ export default function ProjectDetailsPage() {
 
         <section className="space-y-3">
           <h2 className="text-xl font-semibold">Description</h2>
-          <p className="leading-7 text-muted-foreground">{project.description}</p>
+          <p className="leading-7 text-muted-foreground">
+            {project.description}
+          </p>
         </section>
       </section>
     </main>

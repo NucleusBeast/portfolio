@@ -1,190 +1,245 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { ExternalLink } from "lucide-react";
+import {
+  ArrowUpRight,
+  Boxes,
+  Braces,
+  Code2,
+  ExternalLink,
+  Gauge,
+  GitBranch,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo } from "react";
 import { ProjectCarousel } from "@/components/project-carousel";
+import { api } from "@/convex/_generated/api";
+
+const metrics = [
+  { label: "Stack focus", value: "Next.js", icon: Code2 },
+  { label: "Data layer", value: "Convex", icon: GitBranch },
+  { label: "Build mode", value: "End-to-end", icon: Boxes },
+];
 
 export default function Home() {
   const router = useRouter();
   const skills = useQuery(api.models.skills.get);
   const projects = useQuery(api.models.projects.list);
 
-  const sortedSkills = skills
-    ? [...skills].sort((a, b) => {
-        const categoryCompare = a.category.localeCompare(b.category);
-        if (categoryCompare !== 0) {
-          return categoryCompare;
-        }
+  const sortedSkills = useMemo(
+    () =>
+      skills
+        ? [...skills].sort((a, b) => {
+            const categoryCompare = a.category.localeCompare(b.category);
+            if (categoryCompare !== 0) {
+              return categoryCompare;
+            }
 
-        const levelCompare = b.level - a.level;
-        if (levelCompare !== 0) {
-          return levelCompare;
-        }
+            const levelCompare = b.level - a.level;
+            if (levelCompare !== 0) {
+              return levelCompare;
+            }
 
-        return a.name.localeCompare(b.name);
-      })
-    : [];
-
-  const skillsByCategory = sortedSkills.reduce(
-    (acc, skill) => {
-      if (!acc[skill.category]) {
-        acc[skill.category] = [];
-      }
-
-      acc[skill.category].push(skill);
-      return acc;
-    },
-    {} as Record<string, typeof sortedSkills>,
+            return a.name.localeCompare(b.name);
+          })
+        : [],
+    [skills],
   );
 
-  const categories = Object.keys(skillsByCategory);
+  const topSkills = sortedSkills.slice(0, 8);
+  const categories = useMemo(() => {
+    const grouped = sortedSkills.reduce(
+      (acc, skill) => {
+        if (!acc[skill.category]) {
+          acc[skill.category] = [];
+        }
+        acc[skill.category].push(skill);
+        return acc;
+      },
+      {} as Record<string, typeof sortedSkills>,
+    );
+
+    return Object.entries(grouped).slice(0, 6);
+  }, [sortedSkills]);
 
   return (
-    <main className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-10">
-      <section className="space-y-3">
-        <h1 className="text-3xl font-bold">NucleusBeast portfolio!</h1>
-        <p>
-          I build polished web products with a strong focus on performance,
-          clean architecture, and thoughtful UI.
-        </p>
-        <p>
-          My work blends frontend engineering, backend integration, and visual
-          design to create experiences that are both fast and memorable.
-        </p>
+    <main className="blueprint-page min-h-screen">
+      <section className="blueprint-shell blueprint-hero">
+        <div className="blueprint-hero-copy">
+          <div className="blueprint-kicker">
+            <Braces className="h-4 w-4" />
+            Blueprint studio
+          </div>
+          <h1>From rough idea to working product, mapped with intent.</h1>
+          <p>
+            A precise technical portfolio for full-stack builds, UI systems, and
+            project artifacts. Grid lines, measurements, and shipping details
+            stay visible because the craft matters.
+          </p>
+          <div className="blueprint-actions">
+            <a href="#projects" className="blueprint-primary-action">
+              View projects
+              <ArrowUpRight className="h-4 w-4" />
+            </a>
+            <a href="#skills" className="blueprint-secondary-action">
+              Skill map
+            </a>
+          </div>
+        </div>
+
+        <div
+          className="blueprint-hero-panel"
+          role="img"
+          aria-label="Portfolio snapshot"
+        >
+          <div className="blueprint-panel-top">
+            <span>NucleusBeast</span>
+            <span>Build yellow</span>
+          </div>
+          <div className="blueprint-signal">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+          <div className="blueprint-metric-grid">
+            {metrics.map((metric) => {
+              const Icon = metric.icon;
+              return (
+                <div className="blueprint-metric" key={metric.label}>
+                  <Icon className="h-4 w-4" />
+                  <span>{metric.label}</span>
+                  <strong>{metric.value}</strong>
+                </div>
+              );
+            })}
+          </div>
+          <div className="blueprint-terminal-strip">
+            <span>ship</span>
+            <span>design</span>
+            <span>integrate</span>
+          </div>
+        </div>
       </section>
 
-      <section id="about" className="scroll-mt-28 space-y-3">
-        <h2 className="text-2xl font-semibold">About</h2>
-        <p className="leading-7 text-muted-foreground">
-          I am a Computer Programming and IPT student who enjoys turning ideas
-          into products people actually want to use. I care about details that
-          matter in production: maintainable code, intuitive interactions,
-          reliable data flows, and clear communication throughout a project.
-        </p>
-        <p className="leading-7 text-muted-foreground">
-          My typical stack includes Next.js, React, TypeScript, and Convex,
-          and I enjoy shipping features end-to-end from planning and UX to
-          implementation and deployment.
-        </p>
-        <p className="leading-7 text-muted-foreground">
-          This site is my live portfolio and sandbox where I document my growth,
-          publish projects, and continuously improve features like admin tools,
-          media handling, and overall user experience.
-        </p>
+      <section className="blueprint-shell blueprint-about" id="about">
+        <div>
+          <p className="blueprint-section-label">About</p>
+          <h2>Practical engineering with visible taste.</h2>
+        </div>
+        <div className="blueprint-about-copy">
+          <p>
+            I am a Computer Programming and IPT student who enjoys turning ideas
+            into products people actually want to use.
+          </p>
+          <p>
+            My typical stack includes Next.js, React, TypeScript, and Convex. I
+            like owning the path from planning and UX to implementation,
+            deployment, and the polish that makes a product feel alive.
+          </p>
+        </div>
       </section>
 
-      <Separator />
+      <section className="blueprint-shell blueprint-skills" id="skills">
+        <div className="blueprint-section-head">
+          <div>
+            <p className="blueprint-section-label">Skills</p>
+            <h2>Capability map</h2>
+          </div>
+          <Gauge className="h-6 w-6" />
+        </div>
 
-      <section className="space-y-4">
-        <h2 className="text-2xl font-semibold">Skills</h2>
         {skills === undefined ? (
-          <p className="text-muted-foreground">Loading skills...</p>
+          <p className="blueprint-muted">Loading skills...</p>
         ) : skills.length === 0 ? (
-          <p className="text-muted-foreground">No skills added yet.</p>
+          <p className="blueprint-muted">No skills added yet.</p>
         ) : (
-          <div className="space-y-5">
-            {categories.map((category) => (
-              <Card key={category}>
-                <CardContent className="p-0">
-                  <div className="flex items-center justify-between border-b px-4 py-3">
-                    <h3 className="font-semibold">{category}</h3>
-                    <Badge variant="outline">
-                      {skillsByCategory[category].length} skills
-                    </Badge>
+          <div className="blueprint-skill-layout">
+            <div className="blueprint-top-skills">
+              {topSkills.map((skill, index) => (
+                <div className="blueprint-skill-row" key={skill._id}>
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  <strong>{skill.name}</strong>
+                  <div>
+                    <i
+                      style={{ width: `${Math.min(skill.level, 10) * 10}%` }}
+                    />
                   </div>
+                  <em>{skill.level}/10</em>
+                </div>
+              ))}
+            </div>
 
-                  <div className="divide-y">
-                    {skillsByCategory[category].map((skill, index) => (
-                      <div
-                        key={skill._id}
-                        className="grid grid-cols-[50px_1fr_70px] items-center gap-3 px-4 py-3"
-                      >
-                        <div className="text-sm font-semibold text-muted-foreground">
-                          #{index + 1}
-                        </div>
-
-                        <div className="space-y-2">
-                          <p className="font-medium">{skill.name}</p>
-                          <div className="h-2 w-full rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full bg-primary"
-                              style={{ width: `${Math.min(skill.level, 10) * 10}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        <div className="text-right">
-                          <Badge variant="secondary">{skill.level}/10</Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <div className="blueprint-category-grid">
+              {categories.map(([category, items]) => (
+                <div className="blueprint-category" key={category}>
+                  <span>{category}</span>
+                  <strong>{items.length}</strong>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </section>
 
-      <Separator />
+      <section className="blueprint-shell blueprint-projects" id="projects">
+        <div className="blueprint-section-head">
+          <div>
+            <p className="blueprint-section-label">Projects</p>
+            <h2>Recent builds</h2>
+          </div>
+        </div>
 
-      <section id="projects" className="scroll-mt-28 space-y-4">
-        <h2 className="text-2xl font-semibold">Projects</h2>
         {projects === undefined ? (
-          <p className="text-muted-foreground">Loading projects...</p>
+          <p className="blueprint-muted">Loading projects...</p>
         ) : projects.length === 0 ? (
-          <p className="text-muted-foreground">No projects added yet.</p>
+          <p className="blueprint-muted">No projects added yet.</p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="blueprint-project-grid">
             {projects.map((project) => (
-              <Card
-                key={project._id}
-                className="cursor-pointer overflow-hidden transition-colors hover:border-primary/40"
-                onClick={() => router.push(`/projects/${project._id}`)}
-              >
-                <div className="relative h-[220px] bg-muted">
+              <article className="blueprint-project" key={project._id}>
+                <div className="blueprint-project-media">
                   <ProjectCarousel
                     imageUrls={project.imageUrls}
                     alt={project.title}
-                    className="h-[220px]"
+                    className="h-full"
                   />
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold">{project.title}</h3>
-                  <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                    {project.description}
-                  </p>
-                  <div className="mt-3 flex items-center gap-3">
-                    <a
-                      href={project.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                      onClick={(event) => event.stopPropagation()}
+                <div className="blueprint-project-body">
+                  <h3>{project.title}</h3>
+                  <p>{project.description}</p>
+                  <div className="blueprint-project-links">
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/projects/${project._id}`)}
                     >
-                      <ExternalLink className="h-3 w-3" />
-                      Visit
-                    </a>
+                      Details
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </button>
+                    {project.url ? (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
                     {project.githubUrl ? (
                       <a
                         href={project.githubUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
-                        onClick={(event) => event.stopPropagation()}
                       >
-                        <ExternalLink className="h-3 w-3" />
                         Source
+                        <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     ) : null}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </article>
             ))}
           </div>
         )}
