@@ -10,7 +10,7 @@ export default defineSchema({
   projects: defineTable({
     title: v.string(),
     description: v.string(),
-    url: v.string(),
+    url: v.optional(v.string()),
     githubUrl: v.optional(v.string()),
     imageId: v.optional(v.id("_storage")),
     imageIds: v.optional(v.array(v.id("_storage"))),

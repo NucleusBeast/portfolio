@@ -31,6 +31,9 @@ export default function NewProjectPage() {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
   const generateUploadUrl = useMutation(api.models.projects.generateUploadUrl);
   const createProject = useMutation(api.models.projects.create);
@@ -44,8 +47,24 @@ export default function NewProjectPage() {
     }
 
     const nextFiles = Array.from(selectedFiles);
-    setFiles(nextFiles);
-    setPreviewUrls(nextFiles.map((selectedFile) => URL.createObjectURL(selectedFile)));
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+
+    for (const f of nextFiles) {
+      if (!f.type.startsWith("image/")) {
+        setError("Only image files are allowed.");
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        setError("Each image must be 5 MB or smaller.");
+        continue;
+      }
+      validFiles.push(f);
+      previews.push(URL.createObjectURL(f));
+    }
+
+    setFiles(validFiles);
+    setPreviewUrls(previews);
   };
 
   const removeImageAtIndex = (targetIndex: number) => {
@@ -58,34 +77,44 @@ export default function NewProjectPage() {
     setIsSubmitting(true);
     setError("");
 
+    setUploadProgress(0);
+
     try {
       const imageIds: Id<"_storage">[] = [];
 
-      for (const file of files) {
-        const uploadUrl = await generateUploadUrl();
-        const uploadResponse = await fetch(uploadUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": file.type,
-          },
-          body: file,
-        });
+      if (files.length > 0) {
+        let completed = 0;
 
-        if (!uploadResponse.ok) {
-          throw new Error("Image upload failed");
-        }
+        await Promise.all(
+          files.map(async (file) => {
+            const uploadUrl = await generateUploadUrl();
+            const uploadResponse = await fetch(uploadUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": file.type,
+              },
+              body: file,
+            });
 
-        const { storageId } = (await uploadResponse.json()) as {
-          storageId: Id<"_storage">;
-        };
+            if (!uploadResponse.ok) {
+              throw new Error("Image upload failed");
+            }
 
-        imageIds.push(storageId);
+            const { storageId } = (await uploadResponse.json()) as {
+              storageId: Id<"_storage">;
+            };
+
+            imageIds.push(storageId);
+            completed += 1;
+            setUploadProgress(Math.round((completed / files.length) * 100));
+          }),
+        );
       }
 
       await createProject({
         title,
         description,
-        url,
+        url: url || undefined,
         githubUrl: githubUrl || undefined,
         imageIds,
       });
@@ -125,6 +154,10 @@ export default function NewProjectPage() {
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
                 {error}
               </div>
+            ) : null}
+
+            {isSubmitting && uploadProgress > 0 ? (
+              <div className="text-sm text-muted-foreground">Uploading images: {uploadProgress}%</div>
             ) : null}
 
             <div className="space-y-2">
@@ -201,7 +234,6 @@ export default function NewProjectPage() {
                 placeholder="https://example.com/project"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
-                required
               />
             </div>
 

@@ -10,13 +10,6 @@ import { ArrowLeft, ImagePlus } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,6 +33,9 @@ export default function EditProjectPage() {
   const [newPreviewUrls, setNewPreviewUrls] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
+
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
   useEffect(() => {
     if (!project) {
@@ -48,7 +44,7 @@ export default function EditProjectPage() {
 
     setTitle(project.title);
     setDescription(project.description);
-    setUrl(project.url);
+    setUrl(project.url ?? "");
     setGithubUrl(project.githubUrl ?? "");
     setExistingImageIds(project.imageIds);
     setExistingImageUrls(project.imageUrls);
@@ -67,11 +63,24 @@ export default function EditProjectPage() {
     }
 
     const filesToAdd = Array.from(selectedFiles);
-    setNewFiles((current) => [...current, ...filesToAdd]);
-    setNewPreviewUrls((current) => [
-      ...current,
-      ...filesToAdd.map((file) => URL.createObjectURL(file)),
-    ]);
+    const validFiles: File[] = [];
+    const validPreviews: string[] = [];
+
+    for (const f of filesToAdd) {
+      if (!f.type.startsWith("image/")) {
+        setError("Only image files are allowed.");
+        continue;
+      }
+      if (f.size > MAX_FILE_SIZE) {
+        setError("Each image must be 5 MB or smaller.");
+        continue;
+      }
+      validFiles.push(f);
+      validPreviews.push(URL.createObjectURL(f));
+    }
+
+    setNewFiles((current) => [...current, ...validFiles]);
+    setNewPreviewUrls((current) => [...current, ...validPreviews]);
   };
 
   const removeExistingImage = (index: number) => {
@@ -89,35 +98,45 @@ export default function EditProjectPage() {
     setError("");
     setIsSubmitting(true);
 
+    setUploadProgress(0);
+
     try {
       const uploadedImageIds: Id<"_storage">[] = [];
 
-      for (const file of newFiles) {
-        const uploadUrl = await generateUploadUrl();
-        const response = await fetch(uploadUrl, {
-          method: "POST",
-          headers: {
-            "Content-Type": file.type,
-          },
-          body: file,
-        });
+      if (newFiles.length > 0) {
+        let completed = 0;
 
-        if (!response.ok) {
-          throw new Error("Image upload failed");
-        }
+        await Promise.all(
+          newFiles.map(async (file) => {
+            const uploadUrl = await generateUploadUrl();
+            const response = await fetch(uploadUrl, {
+              method: "POST",
+              headers: {
+                "Content-Type": file.type,
+              },
+              body: file,
+            });
 
-        const { storageId } = (await response.json()) as {
-          storageId: Id<"_storage">;
-        };
+            if (!response.ok) {
+              throw new Error("Image upload failed");
+            }
 
-        uploadedImageIds.push(storageId);
+            const { storageId } = (await response.json()) as {
+              storageId: Id<"_storage">;
+            };
+
+            uploadedImageIds.push(storageId);
+            completed += 1;
+            setUploadProgress(Math.round((completed / newFiles.length) * 100));
+          }),
+        );
       }
 
       await updateProject({
         id: projectId,
         title,
         description,
-        url,
+        url: url || undefined,
         githubUrl: githubUrl || undefined,
         imageIds: [...existingImageIds, ...uploadedImageIds],
       });
@@ -164,12 +183,12 @@ export default function EditProjectPage() {
         Back to Projects
       </Link>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Project</CardTitle>
-          <CardDescription>Update your project details and images</CardDescription>
-        </CardHeader>
-        <CardContent>
+      <section className="space-y-6">
+        <header className="mb-4">
+          <h1 className="text-2xl font-semibold">Edit Project</h1>
+          <p className="text-sm text-muted-foreground">Update your project details and images</p>
+        </header>
+        <div>
           <form onSubmit={handleSubmit} className="space-y-6">
             {error ? (
               <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
@@ -248,7 +267,6 @@ export default function EditProjectPage() {
                 type="url"
                 value={url}
                 onChange={(event) => setUrl(event.target.value)}
-                required
               />
             </div>
 
@@ -273,8 +291,8 @@ export default function EditProjectPage() {
               </Link>
             </div>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </section>
     </div>
   );
 }

@@ -124,3 +124,519 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .blueprint-page {
+    --blueprint-bg: #eaf4fb;
+    --blueprint-fg: #10233b;
+    --blueprint-muted: #51657a;
+    --blueprint-line: color-mix(in oklab, var(--blueprint-fg) 18%, transparent);
+    --blueprint-panel: #f8fcff;
+    --blueprint-accent: #006fd6;
+    --blueprint-accent-2: #ffb000;
+    --blueprint-accent-3: #ef4d5d;
+    background:
+      linear-gradient(
+        color-mix(in oklab, var(--blueprint-accent) 12%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--blueprint-accent) 12%, transparent) 1px,
+        transparent 1px
+      ), var(--blueprint-bg);
+    background-size: 36px 36px;
+    color: var(--blueprint-fg);
+    font-family: "Trebuchet MS", var(--font-geist-sans), sans-serif;
+    overflow-x: hidden;
+  }
+
+  .blueprint-shell {
+    width: min(1180px, calc(100% - 32px));
+    margin-inline: auto;
+  }
+
+  .blueprint-hero {
+    display: grid;
+    min-height: calc(100vh - 96px);
+    grid-template-columns: minmax(0, 1fr) minmax(320px, 0.72fr);
+    align-items: center;
+    gap: clamp(28px, 5vw, 72px);
+    padding-block: clamp(48px, 9vw, 120px) clamp(40px, 7vw, 88px);
+  }
+
+  .blueprint-hero-copy {
+    animation: blueprint-rise 680ms ease both;
+  }
+
+  .blueprint-kicker,
+  .blueprint-section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--blueprint-accent);
+    font:
+      800 0.75rem / 1 var(--font-geist-mono),
+      monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .blueprint-hero h1 {
+    max-width: 900px;
+    margin-top: 18px;
+    font-size: clamp(3.2rem, 9vw, 8.4rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: 0;
+  }
+
+  .blueprint-hero p {
+    max-width: 680px;
+    margin-top: 26px;
+    color: var(--blueprint-muted);
+    font:
+      500 clamp(1rem, 1.8vw, 1.35rem) / 1.75 var(--font-geist-sans),
+      sans-serif;
+  }
+
+  .blueprint-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+  }
+
+  .blueprint-primary-action,
+  .blueprint-secondary-action {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 999px;
+    padding: 0 18px;
+    font:
+      800 0.9rem / 1 var(--font-geist-sans),
+      sans-serif;
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease,
+      background 180ms ease;
+  }
+
+  .blueprint-primary-action {
+    background: var(--blueprint-fg);
+    color: var(--blueprint-bg);
+    box-shadow: 0 18px 38px
+      color-mix(in oklab, var(--blueprint-fg) 22%, transparent);
+  }
+
+  .blueprint-secondary-action {
+    border: 1px solid var(--blueprint-line);
+    color: var(--blueprint-fg);
+  }
+
+  .blueprint-primary-action:hover,
+  .blueprint-secondary-action:hover {
+    transform: translateY(-2px);
+  }
+
+  .blueprint-hero-panel {
+    position: relative;
+    isolation: isolate;
+    min-height: 520px;
+    padding: clamp(20px, 4vw, 34px);
+    border: 1px solid var(--blueprint-line);
+    border-radius: 2px;
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--blueprint-panel) 94%, transparent),
+        color-mix(in oklab, var(--blueprint-panel) 72%, transparent)
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 30px,
+        color-mix(in oklab, var(--blueprint-fg) 6%, transparent) 30px 31px
+      );
+    box-shadow: 0 28px 70px
+      color-mix(in oklab, var(--blueprint-fg) 15%, transparent);
+    animation: blueprint-float 900ms ease both;
+  }
+
+  .blueprint-panel-top,
+  .blueprint-terminal-strip,
+  .blueprint-metric {
+    font-family: var(--font-geist-mono), monospace;
+  }
+
+  .blueprint-panel-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--blueprint-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+  }
+
+  .blueprint-signal {
+    display: grid;
+    height: 240px;
+    grid-template-columns: repeat(5, 1fr);
+    align-items: end;
+    gap: 12px;
+    margin-top: 48px;
+  }
+
+  .blueprint-signal span {
+    min-height: 54px;
+    border: 1px solid var(--blueprint-line);
+    background: var(--blueprint-accent);
+    transform-origin: bottom;
+    animation: blueprint-bars 1400ms ease both;
+  }
+
+  .blueprint-signal span:nth-child(2) {
+    height: 68%;
+    background: var(--blueprint-accent-2);
+    animation-delay: 80ms;
+  }
+
+  .blueprint-signal span:nth-child(3) {
+    height: 94%;
+    background: var(--blueprint-fg);
+    animation-delay: 160ms;
+  }
+
+  .blueprint-signal span:nth-child(4) {
+    height: 48%;
+    background: var(--blueprint-accent-3);
+    animation-delay: 240ms;
+  }
+
+  .blueprint-signal span:nth-child(5) {
+    height: 78%;
+    background: var(--blueprint-accent);
+    animation-delay: 320ms;
+  }
+
+  .blueprint-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 34px;
+  }
+
+  .blueprint-metric {
+    display: grid;
+    min-height: 126px;
+    align-content: space-between;
+    border: 1px solid var(--blueprint-line);
+    padding: 14px;
+    background: color-mix(in oklab, var(--blueprint-bg) 58%, transparent);
+  }
+
+  .blueprint-metric span {
+    color: var(--blueprint-muted);
+    font-size: 0.72rem;
+  }
+
+  .blueprint-metric strong {
+    font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  }
+
+  .blueprint-terminal-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+    color: var(--blueprint-muted);
+    font-size: 0.74rem;
+  }
+
+  .blueprint-terminal-strip span {
+    border: 1px solid var(--blueprint-line);
+    padding: 7px 10px;
+  }
+
+  .blueprint-about,
+  .blueprint-skills,
+  .blueprint-projects {
+    padding-block: clamp(54px, 9vw, 104px);
+  }
+
+  .blueprint-about {
+    display: grid;
+    grid-template-columns: 0.8fr 1.2fr;
+    gap: clamp(24px, 6vw, 84px);
+    border-top: 1px solid var(--blueprint-line);
+  }
+
+  .blueprint-about h2,
+  .blueprint-section-head h2 {
+    margin-top: 10px;
+    font-size: clamp(2rem, 4vw, 4.6rem);
+    font-weight: 900;
+    line-height: 0.98;
+    letter-spacing: 0;
+  }
+
+  .blueprint-about-copy {
+    display: grid;
+    gap: 18px;
+    color: var(--blueprint-muted);
+    font:
+      500 clamp(1rem, 1.5vw, 1.18rem) / 1.8 var(--font-geist-sans),
+      sans-serif;
+  }
+
+  .blueprint-section-head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 26px;
+  }
+
+  .blueprint-muted {
+    color: var(--blueprint-muted);
+    font:
+      600 1rem / 1.5 var(--font-geist-sans),
+      sans-serif;
+  }
+
+  .blueprint-skill-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+    gap: 18px;
+  }
+
+  .blueprint-top-skills,
+  .blueprint-category-grid,
+  .blueprint-project {
+    border: 1px solid var(--blueprint-line);
+    border-radius: 2px;
+    background: color-mix(in oklab, var(--blueprint-panel) 78%, transparent);
+  }
+
+  .blueprint-skill-row {
+    display: grid;
+    grid-template-columns: 46px minmax(120px, 1fr) minmax(120px, 0.8fr) 58px;
+    align-items: center;
+    gap: 14px;
+    min-height: 64px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--blueprint-line);
+    font-family: var(--font-geist-sans), sans-serif;
+  }
+
+  .blueprint-skill-row:last-child {
+    border-bottom: 0;
+  }
+
+  .blueprint-skill-row span,
+  .blueprint-skill-row em {
+    color: var(--blueprint-muted);
+    font:
+      700 0.76rem / 1 var(--font-geist-mono),
+      monospace;
+    font-style: normal;
+  }
+
+  .blueprint-skill-row div {
+    height: 8px;
+    overflow: hidden;
+    background: color-mix(in oklab, var(--blueprint-fg) 11%, transparent);
+  }
+
+  .blueprint-skill-row i {
+    display: block;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--blueprint-accent),
+      var(--blueprint-accent-2)
+    );
+  }
+
+  .blueprint-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--blueprint-line);
+  }
+
+  .blueprint-category {
+    min-height: 118px;
+    padding: 18px;
+    background: var(--blueprint-panel);
+    font-family: var(--font-geist-sans), sans-serif;
+  }
+
+  .blueprint-category span {
+    color: var(--blueprint-muted);
+    font-size: 0.85rem;
+  }
+
+  .blueprint-category strong {
+    display: block;
+    margin-top: 18px;
+    font-size: 2.4rem;
+  }
+
+  .blueprint-project-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .blueprint-project {
+    overflow: hidden;
+    transition:
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      border-color 220ms ease;
+  }
+
+  .blueprint-project:hover {
+    transform: translateY(-5px);
+    border-color: color-mix(
+      in oklab,
+      var(--blueprint-accent) 64%,
+      var(--blueprint-line)
+    );
+    box-shadow: 0 22px 48px
+      color-mix(in oklab, var(--blueprint-fg) 14%, transparent);
+  }
+
+  .blueprint-project-media {
+    display: block;
+    width: 100%;
+    height: 235px;
+    overflow: hidden;
+    border-bottom: 1px solid var(--blueprint-line);
+    background: color-mix(in oklab, var(--blueprint-fg) 8%, transparent);
+  }
+
+  .blueprint-project-body {
+    padding: 18px;
+    font-family: var(--font-geist-sans), sans-serif;
+  }
+
+  .blueprint-project h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+  }
+
+  .blueprint-project p {
+    display: -webkit-box;
+    min-height: 4.5em;
+    margin-top: 8px;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    color: var(--blueprint-muted);
+    line-height: 1.5;
+  }
+
+  .blueprint-project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .blueprint-project-links a,
+  .blueprint-project-links button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 0;
+    background: transparent;
+    color: var(--blueprint-accent);
+    font: inherit;
+    font-weight: 850;
+    cursor: pointer;
+  }
+
+  @keyframes blueprint-rise {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes blueprint-float {
+    from {
+      opacity: 0;
+      transform: translateY(28px) rotate(1.5deg);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) rotate(0);
+    }
+  }
+
+  @keyframes blueprint-bars {
+    from {
+      transform: scaleY(0.2);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @media (max-width: 980px) {
+    .blueprint-hero,
+    .blueprint-about,
+    .blueprint-skill-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .blueprint-hero {
+      min-height: auto;
+    }
+
+    .blueprint-project-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 640px) {
+    .blueprint-hero h1 {
+      font-size: clamp(2.6rem, 18vw, 4.6rem);
+    }
+
+    .blueprint-hero-panel {
+      min-height: auto;
+    }
+
+    .blueprint-signal {
+      height: 180px;
+    }
+
+    .blueprint-metric-grid,
+    .blueprint-project-grid,
+    .blueprint-category-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .blueprint-skill-row {
+      grid-template-columns: 38px minmax(0, 1fr) 48px;
+    }
+
+    .blueprint-skill-row div {
+      grid-column: 2 / -1;
+      width: 100%;
+    }
+
+    .blueprint-project-media {
+      height: 210px;
+    }
+  }
+}
