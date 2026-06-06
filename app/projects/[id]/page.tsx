@@ -13,6 +13,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import { ProjectImageFrame } from "@/components/project-carousel";
+import { ProjectDetailSkeleton } from "@/components/project-detail-skeleton";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -28,13 +30,7 @@ export default function ProjectDetailsPage() {
   }, [projectId]);
 
   if (project === undefined) {
-    return (
-      <main className="blueprint-page min-h-screen">
-        <div className="blueprint-shell blueprint-detail-status">
-          <p className="blueprint-muted">Loading project...</p>
-        </div>
-      </main>
-    );
+    return <ProjectDetailSkeleton />;
   }
 
   if (project === null) {
@@ -104,13 +100,11 @@ export default function ProjectDetailsPage() {
             </div>
             <div className="blueprint-detail-frame">
               {hasImages ? (
-                <Image
+                <ProjectImageFrame
                   src={project.imageUrls[safeIndex]}
                   alt={`${project.title} image ${safeIndex + 1}`}
                   width={1400}
                   height={900}
-                  className="h-full w-full object-cover"
-                  unoptimized
                 />
               ) : (
                 <div className="blueprint-detail-empty">

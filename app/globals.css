@@ -857,6 +857,89 @@
     text-wrap: pretty;
   }
 
+  .blueprint-detail-loading {
+    min-height: 100vh;
+  }
+
+  .blueprint-skeleton {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid
+      color-mix(in oklab, var(--blueprint-line) 70%, transparent);
+    background:
+      linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in oklab, var(--blueprint-accent) 16%, transparent),
+        transparent
+      ), color-mix(in oklab, var(--blueprint-fg) 9%, transparent);
+    background-size:
+      220% 100%,
+      100% 100%;
+    animation: blueprint-skeleton-scan 1.25s ease-in-out infinite;
+  }
+
+  .blueprint-skeleton-title {
+    width: min(100%, 700px);
+    height: clamp(52px, 7vw, 78px);
+    margin-top: 18px;
+  }
+
+  .blueprint-skeleton-title-short {
+    width: min(62%, 430px);
+    margin-top: 10px;
+  }
+
+  .blueprint-skeleton-line {
+    width: 100%;
+    height: 16px;
+    margin-bottom: 12px;
+  }
+
+  .blueprint-skeleton-line-short {
+    width: 68%;
+    margin-bottom: 0;
+  }
+
+  .blueprint-skeleton-action {
+    width: 142px;
+    height: 44px;
+  }
+
+  .blueprint-skeleton-action-secondary {
+    width: 124px;
+  }
+
+  .blueprint-detail-frame-loading {
+    display: grid;
+    place-items: stretch;
+    padding: 18px;
+  }
+
+  .blueprint-skeleton-image,
+  .blueprint-skeleton-thumb {
+    width: 100%;
+    height: 100%;
+  }
+
+  .blueprint-skeleton-spec {
+    width: min(100%, 170px);
+    height: 24px;
+  }
+
+  @keyframes blueprint-skeleton-scan {
+    from {
+      background-position:
+        220% 0,
+        0 0;
+    }
+    to {
+      background-position:
+        -120% 0,
+        0 0;
+    }
+  }
+
   @keyframes blueprint-rise {
     from {
       opacity: 0;

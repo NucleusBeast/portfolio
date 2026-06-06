@@ -1,12 +1,12 @@
 "use client";
 
 import type React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowLeft, ImagePlus } from "lucide-react";
+import { ProjectImageFrame } from "@/components/project-carousel";
 import type { Id } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
@@ -237,13 +237,11 @@ export default function EditProjectPage() {
                       key={item.key}
                       className="relative aspect-video overflow-hidden rounded-lg border bg-muted"
                     >
-                      <Image
+                      <ProjectImageFrame
                         src={item.previewUrl}
                         alt="Project image"
                         width={960}
                         height={540}
-                        className="h-full w-full object-cover"
-                        unoptimized
                       />
                       <Button
                         type="button"
