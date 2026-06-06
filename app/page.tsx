@@ -29,11 +29,6 @@ export default function Home() {
     () =>
       skills
         ? [...skills].sort((a, b) => {
-            const categoryCompare = a.category.localeCompare(b.category);
-            if (categoryCompare !== 0) {
-              return categoryCompare;
-            }
-
             const levelCompare = b.level - a.level;
             if (levelCompare !== 0) {
               return levelCompare;
@@ -203,7 +198,7 @@ export default function Home() {
         <div className="blueprint-section-head">
           <div>
             <p className="blueprint-section-label">Skills</p>
-            <h2>Capability map</h2>
+            <h2>My favourite/preferred tools</h2>
           </div>
           <Gauge className="h-6 w-6" />
         </div>

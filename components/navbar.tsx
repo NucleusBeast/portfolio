@@ -1,6 +1,7 @@
 "use client";
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
+import { Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -91,27 +92,39 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <SignedOut>
-          <Link
-            href="/sign-in"
-            className="rounded-full border bg-background px-5 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
+        <div className="flex items-center gap-2">
+          <a
+            href="https://github.com/NucleusBeast"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open NucleusBeast on GitHub"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background text-foreground transition-colors hover:bg-accent"
           >
-            Sign In
-          </Link>
-        </SignedOut>
-        <SignedIn>
-          <Link
-            href="/admin/projects"
-            className={cn(
-              "rounded-full px-5 py-2.5 text-base font-medium transition-colors",
-              pathname.startsWith("/admin")
-                ? "bg-primary text-primary-foreground"
-                : "border bg-background text-foreground hover:bg-accent",
-            )}
-          >
-            Admin
-          </Link>
-        </SignedIn>
+            <Github className="h-4 w-4" />
+          </a>
+
+          <SignedOut>
+            <Link
+              href="/sign-in"
+              className="rounded-full border bg-background px-5 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
+            >
+              Sign In
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link
+              href="/admin/projects"
+              className={cn(
+                "rounded-full px-5 py-2.5 text-base font-medium transition-colors",
+                pathname.startsWith("/admin")
+                  ? "bg-primary text-primary-foreground"
+                  : "border bg-background text-foreground hover:bg-accent",
+              )}
+            >
+              Admin
+            </Link>
+          </SignedIn>
+        </div>
       </nav>
     </header>
   );

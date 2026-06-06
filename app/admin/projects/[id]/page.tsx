@@ -242,12 +242,13 @@ export default function EditProjectPage() {
                         alt="Project image"
                         width={960}
                         height={540}
+                        className="pointer-events-none"
                       />
                       <Button
                         type="button"
                         variant="destructive"
                         size="sm"
-                        className="absolute right-2 top-2"
+                        className="absolute right-2 top-2 z-20"
                         onClick={item.onRemove}
                       >
                         Remove
