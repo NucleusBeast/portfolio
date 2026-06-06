@@ -10,7 +10,7 @@ import {
   Gauge,
   GitBranch,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useMemo } from "react";
 import { ProjectCarousel } from "@/components/project-carousel";
 import { api } from "@/convex/_generated/api";
@@ -22,7 +22,6 @@ const metrics = [
 ];
 
 export default function Home() {
-  const router = useRouter();
   const skills = useQuery(api.models.skills.get);
   const projects = useQuery(api.models.projects.list);
 
@@ -141,6 +140,65 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="blueprint-shell blueprint-projects" id="projects">
+        <div className="blueprint-section-head">
+          <div>
+            <p className="blueprint-section-label">Projects</p>
+            <h2>Recent builds</h2>
+          </div>
+        </div>
+
+        {projects === undefined ? (
+          <p className="blueprint-muted">Loading projects...</p>
+        ) : projects.length === 0 ? (
+          <p className="blueprint-muted">No projects added yet.</p>
+        ) : (
+          <div className="blueprint-project-grid">
+            {projects.map((project) => (
+              <article className="blueprint-project" key={project._id}>
+                <div className="blueprint-project-media">
+                  <ProjectCarousel
+                    imageUrls={project.imageUrls}
+                    alt={project.title}
+                    className="h-full"
+                  />
+                </div>
+                <div className="blueprint-project-body">
+                  <h3>{project.title}</h3>
+                  <p>{project.description}</p>
+                  <div className="blueprint-project-links">
+                    <Link href={`/projects/${project._id}`}>
+                      Details
+                      <ArrowUpRight className="h-3.5 w-3.5" />
+                    </Link>
+                    {project.url ? (
+                      <a
+                        href={project.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Visit
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
+                    {project.githubUrl ? (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Source
+                        <ExternalLink className="h-3.5 w-3.5" />
+                      </a>
+                    ) : null}
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
       <section className="blueprint-shell blueprint-skills" id="skills">
         <div className="blueprint-section-head">
           <div>
@@ -179,68 +237,6 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-      </section>
-
-      <section className="blueprint-shell blueprint-projects" id="projects">
-        <div className="blueprint-section-head">
-          <div>
-            <p className="blueprint-section-label">Projects</p>
-            <h2>Recent builds</h2>
-          </div>
-        </div>
-
-        {projects === undefined ? (
-          <p className="blueprint-muted">Loading projects...</p>
-        ) : projects.length === 0 ? (
-          <p className="blueprint-muted">No projects added yet.</p>
-        ) : (
-          <div className="blueprint-project-grid">
-            {projects.map((project) => (
-              <article className="blueprint-project" key={project._id}>
-                <div className="blueprint-project-media">
-                  <ProjectCarousel
-                    imageUrls={project.imageUrls}
-                    alt={project.title}
-                    className="h-full"
-                  />
-                </div>
-                <div className="blueprint-project-body">
-                  <h3>{project.title}</h3>
-                  <p>{project.description}</p>
-                  <div className="blueprint-project-links">
-                    <button
-                      type="button"
-                      onClick={() => router.push(`/projects/${project._id}`)}
-                    >
-                      Details
-                      <ArrowUpRight className="h-3.5 w-3.5" />
-                    </button>
-                    {project.url ? (
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Visit
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    ) : null}
-                    {project.githubUrl ? (
-                      <a
-                        href={project.githubUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Source
-                        <ExternalLink className="h-3.5 w-3.5" />
-                      </a>
-                    ) : null}
-                  </div>
-                </div>
-              </article>
-            ))}
           </div>
         )}
       </section>

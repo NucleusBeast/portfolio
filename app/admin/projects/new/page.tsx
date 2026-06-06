@@ -1,9 +1,9 @@
 "use client";
 
 import type React from "react";
-import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { ProjectImageFrame } from "@/components/project-carousel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -203,13 +203,11 @@ export default function NewProjectPage() {
                       key={previewUrl}
                       className="relative aspect-video overflow-hidden rounded-lg border bg-muted"
                     >
-                      <Image
+                      <ProjectImageFrame
                         src={previewUrl}
                         alt={`Preview ${index + 1}`}
                         width={960}
                         height={540}
-                        className="h-full w-full object-cover"
-                        unoptimized
                       />
                       <Button
                         type="button"
