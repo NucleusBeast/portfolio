@@ -1,14 +1,18 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  ExternalLink,
+  Github,
+  Images,
+  Ruler,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -25,16 +29,24 @@ export default function ProjectDetailsPage() {
 
   if (project === undefined) {
     return (
-      <main className="mx-auto w-full max-w-4xl px-4 py-10">
-        <p className="text-muted-foreground">Loading project...</p>
+      <main className="blueprint-page min-h-screen">
+        <div className="blueprint-shell blueprint-detail-status">
+          <p className="blueprint-muted">Loading project...</p>
+        </div>
       </main>
     );
   }
 
   if (project === null) {
     return (
-      <main className="mx-auto w-full max-w-4xl px-4 py-10">
-        <p className="text-muted-foreground">Project not found.</p>
+      <main className="blueprint-page min-h-screen">
+        <div className="blueprint-shell blueprint-detail-status">
+          <Link href="/" className="blueprint-detail-back">
+            <ArrowLeft className="h-4 w-4" />
+            Back to home
+          </Link>
+          <p className="blueprint-muted">Project not found.</p>
+        </div>
       </main>
     );
   }
@@ -45,29 +57,29 @@ export default function ProjectDetailsPage() {
     : 0;
 
   return (
-    <main className="mx-auto w-full max-w-6xl px-4 py-10">
-      <Link
-        href="/"
-        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to home
-      </Link>
+    <main className="blueprint-page min-h-screen">
+      <section className="blueprint-shell blueprint-detail">
+        <Link href="/" className="blueprint-detail-back">
+          <ArrowLeft className="h-4 w-4" />
+          Back to home
+        </Link>
 
-      <section className="space-y-8">
-        <header className="space-y-3">
-          <div className="flex items-center gap-3">
-            <h1 className="text-3xl font-semibold">{project.title}</h1>
-            <Badge variant="secondary">{project.imageUrls.length} images</Badge>
+        <header className="blueprint-detail-hero">
+          <div>
+            <div className="blueprint-kicker">
+              <Ruler className="h-4 w-4" />
+              Project sheet
+            </div>
+            <h1>{project.title}</h1>
           </div>
-          {project.url || project.githubUrl ? (
-            <div className="flex flex-wrap gap-3">
+
+          <div className="blueprint-detail-summary">
+            <p>{project.description}</p>
+            <div className="blueprint-detail-actions">
               {project.url ? (
                 <a href={project.url} target="_blank" rel="noopener noreferrer">
-                  <Button>
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Visit Project
-                  </Button>
+                  Visit project
+                  <ExternalLink className="h-4 w-4" />
                 </a>
               ) : null}
               {project.githubUrl ? (
@@ -76,69 +88,90 @@ export default function ProjectDetailsPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <Button variant="outline">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    View Source
-                  </Button>
+                  View source
+                  <Github className="h-4 w-4" />
                 </a>
               ) : null}
             </div>
-          ) : null}
+          </div>
         </header>
 
-        <div className="space-y-4">
-          <div className="relative h-[520px] overflow-hidden rounded-xl border bg-muted">
-            {hasImages ? (
-              <Image
-                src={project.imageUrls[safeIndex]}
-                alt={`${project.title} image ${safeIndex + 1}`}
-                width={1400}
-                height={900}
-                className="h-full w-full object-cover"
-                unoptimized
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground">
-                No images uploaded
-              </div>
-            )}
-          </div>
-
-          {project.imageUrls.length > 1 ? (
-            <div className="grid grid-cols-4 gap-3 md:grid-cols-6">
-              {project.imageUrls.map((imageUrl, index) => (
-                <button
-                  key={imageUrl}
-                  type="button"
-                  className={`relative h-20 overflow-hidden rounded-md border transition ${
-                    index === safeIndex
-                      ? "border-primary ring-1 ring-primary"
-                      : "border-border hover:border-primary/40"
-                  }`}
-                  onClick={() => setActiveImageIndex(index)}
-                >
-                  <Image
-                    src={imageUrl}
-                    alt={`${project.title} thumbnail ${index + 1}`}
-                    width={240}
-                    height={160}
-                    className="h-full w-full object-cover"
-                    unoptimized
-                  />
-                </button>
-              ))}
+        <div className="blueprint-detail-layout">
+          <section className="blueprint-detail-media">
+            <div className="blueprint-detail-media-top">
+              <span>Frame {String(safeIndex + 1).padStart(2, "0")}</span>
+              <span>{project.imageUrls.length} captures</span>
             </div>
-          ) : null}
+            <div className="blueprint-detail-frame">
+              {hasImages ? (
+                <Image
+                  src={project.imageUrls[safeIndex]}
+                  alt={`${project.title} image ${safeIndex + 1}`}
+                  width={1400}
+                  height={900}
+                  className="h-full w-full object-cover"
+                  unoptimized
+                />
+              ) : (
+                <div className="blueprint-detail-empty">
+                  <Images className="h-12 w-12" />
+                  No images uploaded
+                </div>
+              )}
+            </div>
+
+            {project.imageUrls.length > 1 ? (
+              <div className="blueprint-detail-thumbs">
+                {project.imageUrls.map((imageUrl, index) => (
+                  <button
+                    key={imageUrl}
+                    type="button"
+                    className={`blueprint-detail-thumb ${
+                      index === safeIndex ? "blueprint-detail-thumb-active" : ""
+                    }`}
+                    onClick={() => setActiveImageIndex(index)}
+                  >
+                    <Image
+                      src={imageUrl}
+                      alt={`${project.title} thumbnail ${index + 1}`}
+                      width={240}
+                      height={160}
+                      className="h-full w-full object-cover"
+                      unoptimized
+                    />
+                    <span>{String(index + 1).padStart(2, "0")}</span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
+          </section>
+
+          <aside className="blueprint-detail-spec">
+            <div className="blueprint-detail-spec-head">
+              <span>Build notes</span>
+              <ArrowUpRight className="h-4 w-4" />
+            </div>
+            <dl>
+              <div>
+                <dt>Gallery</dt>
+                <dd>{project.imageUrls.length || "No"} images</dd>
+              </div>
+              <div>
+                <dt>Live URL</dt>
+                <dd>{project.url ? "Available" : "Not attached"}</dd>
+              </div>
+              <div>
+                <dt>Repository</dt>
+                <dd>{project.githubUrl ? "Available" : "Not attached"}</dd>
+              </div>
+            </dl>
+
+            <div className="blueprint-detail-description">
+              <span>Description</span>
+              <p>{project.description}</p>
+            </div>
+          </aside>
         </div>
-
-        <Separator />
-
-        <section className="space-y-3">
-          <h2 className="text-xl font-semibold">Description</h2>
-          <p className="leading-7 text-muted-foreground">
-            {project.description}
-          </p>
-        </section>
       </section>
     </main>
   );
