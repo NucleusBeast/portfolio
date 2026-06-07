@@ -2,11 +2,11 @@ import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/navbar";
-import { ModeToggle } from "@/components/mode-toggle";
 import type React from "react";
 import { ConvexClientProvider } from "@/app/ConvexClientProvider";
+import { ModeToggle } from "@/components/mode-toggle";
+import { SiteChrome } from "@/components/site-chrome";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -45,7 +45,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <ConvexClientProvider>
-              <Navbar />
+              <SiteChrome />
               {children}
             </ConvexClientProvider>
             <div className="fixed bottom-4 right-4">

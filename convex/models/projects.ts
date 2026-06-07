@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { requireAdmin } from "./auth";
 
 export const list = query({
   args: {},
@@ -67,6 +68,8 @@ export const create = mutation({
     imageIds: v.optional(v.array(v.id("_storage"))),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
     return ctx.db.insert("projects", {
       title: args.title,
       description: args.description,
@@ -87,6 +90,8 @@ export const update = mutation({
     imageIds: v.optional(v.array(v.id("_storage"))),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
     const existingProject = await ctx.db.get(args.id);
     if (!existingProject) {
       throw new Error("Project not found");
@@ -118,6 +123,8 @@ export const update = mutation({
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
+    await requireAdmin(ctx);
+
     return ctx.storage.generateUploadUrl();
   },
 });
@@ -127,6 +134,8 @@ export const remove = mutation({
     id: v.id("projects"),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
     const project = await ctx.db.get(args.id);
     if (!project) {
       return;

@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
+import { requireAdmin } from "./auth";
 
 const CV_KEY = "current";
 
@@ -25,6 +26,8 @@ export const get = query({
 export const generateUploadUrl = mutation({
   args: {},
   handler: async (ctx) => {
+    await requireAdmin(ctx);
+
     return ctx.storage.generateUploadUrl();
   },
 });
@@ -36,6 +39,8 @@ export const save = mutation({
     fileSize: v.number(),
   },
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
     const existingCv = await ctx.db
       .query("cvs")
       .withIndex("by_key", (q) => q.eq("key", CV_KEY))
@@ -65,6 +70,8 @@ export const save = mutation({
 export const remove = mutation({
   args: {},
   handler: async (ctx) => {
+    await requireAdmin(ctx);
+
     const cv = await ctx.db
       .query("cvs")
       .withIndex("by_key", (q) => q.eq("key", CV_KEY))
