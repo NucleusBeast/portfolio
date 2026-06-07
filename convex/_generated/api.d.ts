@@ -10,6 +10,7 @@
 
 import type * as http from "../http.js";
 import type * as models_admins from "../models/admins.js";
+import type * as models_auth from "../models/auth.js";
 import type * as models_cv from "../models/cv.js";
 import type * as models_projects from "../models/projects.js";
 import type * as models_skills from "../models/skills.js";
@@ -24,6 +25,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   http: typeof http;
   "models/admins": typeof models_admins;
+  "models/auth": typeof models_auth;
   "models/cv": typeof models_cv;
   "models/projects": typeof models_projects;
   "models/skills": typeof models_skills;

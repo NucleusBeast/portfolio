@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { FileText, FolderKanban, LogOut, Plus, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,14 +25,13 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const { signOut } = useAuth();
+  const { isLoading: isConvexAuthLoading } = useConvexAuth();
   const { user, isLoaded } = useUser();
   const email = user?.primaryEmailAddress?.emailAddress;
-  const admins = useQuery(api.models.admins.get);
-  const isAdmin =
-    email && admins ? admins.some((admin) => admin.email === email) : undefined;
+  const isAdmin = useQuery(api.models.admins.currentUserIsAdmin);
 
   useEffect(() => {
-    if (!isLoaded) {
+    if (!isLoaded || isConvexAuthLoading) {
       return;
     }
 
@@ -42,13 +41,13 @@ export default function AdminLayout({
     }
 
     if (isAdmin === false) {
-      void signOut().then(() => router.replace("/"));
+      router.replace("/");
     }
-  }, [email, isAdmin, isLoaded, router, signOut]);
+  }, [email, isAdmin, isConvexAuthLoading, isLoaded, router]);
 
-  if (!isLoaded || isAdmin === undefined) {
+  if (!isLoaded || isConvexAuthLoading || isAdmin === undefined) {
     return (
-      <main className="flex min-h-[calc(100vh-65px)] items-center justify-center">
+      <main className="flex min-h-screen items-center justify-center">
         <div className="text-muted-foreground">Loading...</div>
       </main>
     );
@@ -85,7 +84,7 @@ export default function AdminLayout({
   const showCreateAction = !pathname.includes("/admin/cv");
 
   return (
-    <div className="flex min-h-[calc(100vh-65px)]">
+    <div className="flex min-h-screen">
       {/* Sidebar */}
       <aside className="w-64 border-r bg-sidebar">
         <div className="flex h-full flex-col">
