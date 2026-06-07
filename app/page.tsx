@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { ProjectCarousel } from "@/components/project-carousel";
 import { api } from "@/convex/_generated/api";
+import { slugifyProjectTitle } from "@/lib/project-slug";
 
 const metrics = [
   { label: "Stack focus", value: "Next.js", icon: Code2 },
@@ -29,11 +30,6 @@ export default function Home() {
     () =>
       skills
         ? [...skills].sort((a, b) => {
-            const categoryCompare = a.category.localeCompare(b.category);
-            if (categoryCompare !== 0) {
-              return categoryCompare;
-            }
-
             const levelCompare = b.level - a.level;
             if (levelCompare !== 0) {
               return levelCompare;
@@ -167,7 +163,9 @@ export default function Home() {
                   <h3>{project.title}</h3>
                   <p>{project.description}</p>
                   <div className="blueprint-project-links">
-                    <Link href={`/projects/${project._id}`}>
+                    <Link
+                      href={`/projects/${slugifyProjectTitle(project.title)}`}
+                    >
                       Details
                       <ArrowUpRight className="h-3.5 w-3.5" />
                     </Link>
@@ -203,7 +201,7 @@ export default function Home() {
         <div className="blueprint-section-head">
           <div>
             <p className="blueprint-section-label">Skills</p>
-            <h2>Capability map</h2>
+            <h2>My favourite/preferred tools</h2>
           </div>
           <Gauge className="h-6 w-6" />
         </div>

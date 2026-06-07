@@ -15,6 +15,13 @@ export default defineSchema({
     imageId: v.optional(v.id("_storage")),
     imageIds: v.optional(v.array(v.id("_storage"))),
   }),
+  cvs: defineTable({
+    key: v.string(),
+    fileName: v.string(),
+    fileSize: v.number(),
+    storageId: v.id("_storage"),
+    uploadedAt: v.number(),
+  }).index("by_key", ["key"]),
   skills: defineTable({
     name: v.string(),
     level: v.number(),

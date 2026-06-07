@@ -12,24 +12,33 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ProjectImageFrame } from "@/components/project-carousel";
 import { ProjectDetailSkeleton } from "@/components/project-detail-skeleton";
 import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import { slugifyProjectTitle } from "@/lib/project-slug";
 
 export default function ProjectDetailsPage() {
   const params = useParams<{ id: string }>();
-  const projectId = params.id as Id<"projects">;
-  const project = useQuery(api.models.projects.getById, { id: projectId });
+  const projectSlug = params.id;
+  const projects = useQuery(api.models.projects.list);
+  const project = useMemo(
+    () =>
+      projects?.find(
+        (projectItem) =>
+          projectItem._id === projectSlug ||
+          slugifyProjectTitle(projectItem.title) === projectSlug,
+      ) ?? null,
+    [projects, projectSlug],
+  );
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   useEffect(() => {
-    void projectId;
+    void projectSlug;
     setActiveImageIndex(0);
-  }, [projectId]);
+  }, [projectSlug]);
 
-  if (project === undefined) {
+  if (projects === undefined) {
     return <ProjectDetailSkeleton />;
   }
 

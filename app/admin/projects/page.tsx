@@ -1,14 +1,15 @@
 "use client";
 
+import { useMutation, useQuery } from "convex/react";
+import { ExternalLink, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
-import { Card, CardContent } from "@/components/ui/card";
+import { ProjectCarousel } from "@/components/project-carousel";
 import { Button } from "@/components/ui/button";
-import { Trash2, ExternalLink } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
 import { api } from "@/convex/_generated/api";
-import { ProjectCarousel } from "@/components/project-carousel";
+import { slugifyProjectTitle } from "@/lib/project-slug";
 
 export default function ProjectsPage() {
   const router = useRouter();
@@ -54,7 +55,9 @@ export default function ProjectsPage() {
                 onClick={(event) => {
                   event.preventDefault();
                   event.stopPropagation();
-                  router.push(`/projects/${project._id}`);
+                  router.push(
+                    `/projects/${slugifyProjectTitle(project.title)}`,
+                  );
                 }}
               >
                 View Details

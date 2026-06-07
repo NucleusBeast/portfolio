@@ -1,20 +1,20 @@
 "use client";
 
 import { useAuth, useUser } from "@clerk/nextjs";
-import type React from "react";
-
-import { useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { LogOut, FolderKanban, Sparkles, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { api } from "@/convex/_generated/api";
 import { useQuery } from "convex/react";
+import { FileText, FolderKanban, LogOut, Plus, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { api } from "@/convex/_generated/api";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   { label: "Projects", href: "/admin/projects", icon: FolderKanban },
   { label: "Skills", href: "/admin/skills", icon: Sparkles },
+  { label: "CV", href: "/admin/cv", icon: FileText },
 ];
 
 export default function AdminLayout({
@@ -72,6 +72,18 @@ export default function AdminLayout({
     return "New Project";
   };
 
+  const getPageTitle = () => {
+    if (pathname.includes("/admin/skills")) {
+      return "Skills";
+    }
+    if (pathname.includes("/admin/cv")) {
+      return "CV";
+    }
+    return "Projects";
+  };
+
+  const showCreateAction = !pathname.includes("/admin/cv");
+
   return (
     <div className="flex min-h-[calc(100vh-65px)]">
       {/* Sidebar */}
@@ -123,15 +135,15 @@ export default function AdminLayout({
       {/* Main content */}
       <main className="flex-1">
         <header className="flex items-center justify-between border-b px-8 py-4">
-          <h1 className="text-2xl font-semibold">
-            {pathname.includes("/admin/skills") ? "Skills" : "Projects"}
-          </h1>
-          <Link href={getCreateLink()}>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              {getCreateLabel()}
-            </Button>
-          </Link>
+          <h1 className="text-2xl font-semibold">{getPageTitle()}</h1>
+          {showCreateAction ? (
+            <Link href={getCreateLink()}>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                {getCreateLabel()}
+              </Button>
+            </Link>
+          ) : null}
         </header>
         <div className="p-8">{children}</div>
       </main>
