@@ -41,7 +41,6 @@ export default function Home() {
     [skills],
   );
 
-  const topSkills = sortedSkills.slice(0, 8);
   const categories = useMemo(() => {
     const grouped = sortedSkills.reduce(
       (acc, skill) => {
@@ -213,7 +212,7 @@ export default function Home() {
         ) : (
           <div className="blueprint-skill-layout">
             <div className="blueprint-top-skills">
-              {topSkills.map((skill, index) => (
+              {sortedSkills.map((skill, index) => (
                 <div className="blueprint-skill-row" key={skill._id}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <strong>{skill.name}</strong>

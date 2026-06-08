@@ -2,7 +2,14 @@
 
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useConvexAuth, useQuery } from "convex/react";
-import { FileText, FolderKanban, LogOut, Plus, Sparkles } from "lucide-react";
+import {
+  FileText,
+  FolderKanban,
+  Home,
+  LogOut,
+  Plus,
+  Sparkles,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
@@ -84,9 +91,9 @@ export default function AdminLayout({
   const showCreateAction = !pathname.includes("/admin/cv");
 
   return (
-    <div className="admin-shell flex min-h-screen">
+    <div className="admin-shell flex h-screen overflow-hidden">
       {/* Sidebar */}
-      <aside className="admin-sidebar w-64 border-r border-sidebar-border">
+      <aside className="admin-sidebar h-screen w-64 shrink-0 border-r border-sidebar-border">
         <div className="flex h-full flex-col">
           <div className="p-6">
             <h2 className="text-lg font-semibold text-sidebar-foreground">
@@ -118,10 +125,19 @@ export default function AdminLayout({
               })}
             </ul>
           </nav>
-          <div className="border-t p-4">
+          <div className="space-y-2 border-t p-4">
+            <Link href="/">
+              <Button
+                variant="ghost"
+                className="w-full justify-start text-muted-foreground hover:text-foreground"
+              >
+                <Home className="mr-2 h-4 w-4" />
+                Landing Page
+              </Button>
+            </Link>
             <Button
               variant="ghost"
-              className="w-full justify-start text-muted-foreground hover:text-foreground"
+              className="w-full justify-start text-destructive/75 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => void signOut().then(() => router.push("/"))}
             >
               <LogOut className="mr-2 h-4 w-4" />
@@ -132,7 +148,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="flex-1">
+      <main className="h-screen min-w-0 flex-1 overflow-y-auto">
         <header className="admin-topbar sticky top-0 z-20 flex items-center justify-between border-b px-8 py-4">
           <h1 className="text-2xl font-semibold">{getPageTitle()}</h1>
           {showCreateAction ? (
