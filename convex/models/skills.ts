@@ -9,7 +9,6 @@ export const get = query({
   },
 });
 
-// Create a new task with the given text
 export const post = mutation({
   args: { name: v.string(), level: v.number(), category: v.string() },
   handler: async (ctx, args) => {
@@ -21,6 +20,23 @@ export const post = mutation({
       category: args.category,
     });
     return newSkillId;
+  },
+});
+
+export const updateLevel = mutation({
+  args: { id: v.id("skills"), level: v.number() },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+
+    const skill = await ctx.db.get(args.id);
+
+    if (!skill) {
+      throw new Error("Skill not found");
+    }
+
+    await ctx.db.patch(args.id, {
+      level: Math.max(0, Math.min(10, Math.round(args.level))),
+    });
   },
 });
 
