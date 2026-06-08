@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  color-scheme: light;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.141 0.005 285.823);
   --popover: oklch(1 0 0);
@@ -40,38 +41,39 @@
 }
 
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
+  color-scheme: dark;
+  --background: oklch(0.17 0.032 253);
+  --foreground: oklch(0.96 0.014 231);
+  --card: oklch(0.205 0.036 250);
+  --card-foreground: oklch(0.96 0.014 231);
+  --popover: oklch(0.205 0.036 250);
+  --popover-foreground: oklch(0.96 0.014 231);
+  --primary: oklch(0.74 0.145 230);
+  --primary-foreground: oklch(0.145 0.03 253);
+  --secondary: oklch(0.255 0.04 250);
+  --secondary-foreground: oklch(0.93 0.018 231);
+  --muted: oklch(0.255 0.04 250);
+  --muted-foreground: oklch(0.73 0.044 235);
+  --accent: oklch(0.31 0.07 232);
+  --accent-foreground: oklch(0.96 0.014 231);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --border: oklch(0.92 0.022 238 / 14%);
+  --input: oklch(0.92 0.022 238 / 18%);
+  --ring: oklch(0.74 0.145 230);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.552 0.016 285.938);
+  --sidebar: oklch(0.135 0.035 253);
+  --sidebar-foreground: oklch(0.93 0.018 231);
+  --sidebar-primary: oklch(0.74 0.145 230);
+  --sidebar-primary-foreground: oklch(0.145 0.03 253);
+  --sidebar-accent: oklch(0.255 0.055 246);
+  --sidebar-accent-foreground: oklch(0.96 0.014 231);
+  --sidebar-border: oklch(0.92 0.022 238 / 14%);
+  --sidebar-ring: oklch(0.74 0.145 230);
 }
 
 @theme inline {
@@ -121,7 +123,12 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply min-h-screen bg-background text-foreground;
+  }
+
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 32%, transparent);
+    color: var(--foreground);
   }
 }
 
@@ -149,6 +156,53 @@
     color: var(--blueprint-fg);
     font-family: "Trebuchet MS", var(--font-geist-sans), sans-serif;
     overflow-x: hidden;
+  }
+
+  .dark .blueprint-page {
+    --blueprint-bg: #071522;
+    --blueprint-fg: #dff3ff;
+    --blueprint-muted: #8fb0c6;
+    --blueprint-line: color-mix(in oklab, var(--blueprint-fg) 16%, transparent);
+    --blueprint-panel: #0d2130;
+    --blueprint-accent: #4ab7ff;
+    --blueprint-accent-2: #f6b73c;
+    --blueprint-accent-3: #ff6b7c;
+  }
+
+  .admin-shell {
+    background:
+      radial-gradient(
+        circle at 18% 8%,
+        color-mix(in oklab, var(--primary) 10%, transparent),
+        transparent 30%
+      ), var(--background);
+  }
+
+  .dark .admin-shell {
+    background:
+      radial-gradient(
+        circle at 12% 0%,
+        color-mix(in oklab, var(--primary) 16%, transparent),
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        color-mix(in oklab, var(--background) 86%, black),
+        var(--background)
+      );
+  }
+
+  .admin-sidebar {
+    background: linear-gradient(
+      180deg,
+      color-mix(in oklab, var(--sidebar) 94%, var(--background)),
+      var(--sidebar)
+    );
+  }
+
+  .admin-topbar {
+    background: color-mix(in oklab, var(--background) 86%, transparent);
+    backdrop-filter: blur(16px);
   }
 
   .blueprint-shell {

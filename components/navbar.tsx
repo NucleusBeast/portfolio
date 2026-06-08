@@ -95,7 +95,7 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <a
             href="https://github.com/NucleusBeast"
             target="_blank"
@@ -122,7 +122,7 @@ export default function Navbar() {
           <SignedOut>
             <Link
               href="/sign-in"
-              className="rounded-full border bg-background px-5 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
+              className="ml-2 rounded-full border bg-background px-5 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
             >
               Sign In
             </Link>
@@ -131,7 +131,7 @@ export default function Navbar() {
             <Link
               href="/admin/projects"
               className={cn(
-                "rounded-full px-5 py-2.5 text-base font-medium transition-colors",
+                "ml-2 rounded-full px-5 py-2.5 text-base font-medium transition-colors",
                 pathname.startsWith("/admin")
                   ? "bg-primary text-primary-foreground"
                   : "border bg-background text-foreground hover:bg-accent",

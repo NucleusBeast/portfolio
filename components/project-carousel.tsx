@@ -27,8 +27,6 @@ export function ProjectImageFrame({
   height,
   className,
 }: ProjectImageFrameProps) {
-  const [isPortrait, setIsPortrait] = useState(false);
-
   return (
     <div className={cn("relative h-full w-full overflow-hidden", className)}>
       <Image
@@ -37,10 +35,7 @@ export function ProjectImageFrame({
         aria-hidden="true"
         width={width}
         height={height}
-        className={cn(
-          "absolute inset-0 h-full w-full scale-110 object-cover opacity-0 blur-xl transition-opacity duration-300",
-          isPortrait && "opacity-55",
-        )}
+        className="absolute inset-0 h-full w-full scale-110 object-cover opacity-55 blur-xl"
         unoptimized
       />
       <Image
@@ -48,14 +43,7 @@ export function ProjectImageFrame({
         alt={alt}
         width={width}
         height={height}
-        className={cn(
-          "relative z-10 h-full w-full transition-[object-fit] duration-300",
-          isPortrait ? "object-contain" : "object-cover",
-        )}
-        onLoad={(event) => {
-          const image = event.currentTarget;
-          setIsPortrait(image.naturalHeight > image.naturalWidth);
-        }}
+        className="relative z-10 h-full w-full object-contain"
         unoptimized
       />
     </div>

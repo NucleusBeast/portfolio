@@ -84,9 +84,9 @@ export default function AdminLayout({
   const showCreateAction = !pathname.includes("/admin/cv");
 
   return (
-    <div className="flex min-h-screen">
+    <div className="admin-shell flex min-h-screen">
       {/* Sidebar */}
-      <aside className="w-64 border-r bg-sidebar">
+      <aside className="admin-sidebar w-64 border-r border-sidebar-border">
         <div className="flex h-full flex-col">
           <div className="p-6">
             <h2 className="text-lg font-semibold text-sidebar-foreground">
@@ -133,7 +133,7 @@ export default function AdminLayout({
 
       {/* Main content */}
       <main className="flex-1">
-        <header className="flex items-center justify-between border-b px-8 py-4">
+        <header className="admin-topbar sticky top-0 z-20 flex items-center justify-between border-b px-8 py-4">
           <h1 className="text-2xl font-semibold">{getPageTitle()}</h1>
           {showCreateAction ? (
             <Link href={getCreateLink()}>
