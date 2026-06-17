@@ -2,11 +2,20 @@
 
 import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { FileDown, Github } from "lucide-react";
+import { FileDown, FileText, Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 
@@ -118,6 +127,65 @@ export default function Navbar() {
               <FileDown className="h-4 w-4" />
             </a>
           ) : null}
+
+          <SignedIn>
+            {cv?.wordUrl || cv?.pagesUrl ? (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label="Download editable CV"
+                    title="Download editable CV"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background text-foreground transition-colors hover:bg-accent"
+                  >
+                    <FileText className="h-4 w-4" />
+                  </button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Download editable CV</DialogTitle>
+                    <DialogDescription>
+                      Choose the file format you want to download.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="flex flex-col gap-3">
+                    {cv?.wordUrl ? (
+                      <Button asChild variant="outline">
+                        <a
+                          href="/cv/word"
+                          download={cv.wordFileName ?? "cv.docx"}
+                        >
+                          <FileText className="h-4 w-4" />
+                          Word document
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button type="button" variant="outline" disabled>
+                        <FileText className="h-4 w-4" />
+                        Word document unavailable
+                      </Button>
+                    )}
+                    {cv?.pagesUrl ? (
+                      <Button asChild variant="outline">
+                        <a
+                          href="/cv/pages"
+                          download={cv.pagesFileName ?? "cv.pages"}
+                        >
+                          <FileText className="h-4 w-4" />
+                          macOS Pages document
+                        </a>
+                      </Button>
+                    ) : (
+                      <Button type="button" variant="outline" disabled>
+                        <FileText className="h-4 w-4" />
+                        macOS Pages document unavailable
+                      </Button>
+                    )}
+                  </div>
+                </DialogContent>
+              </Dialog>
+            ) : null}
+          </SignedIn>
 
           <SignedOut>
             <Link
