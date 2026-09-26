@@ -137,7 +137,7 @@ export default function AdminLayout({
             <Link href="/">
               <Button
                 variant="ghost"
-                className="w-full justify-start text-muted-foreground hover:text-foreground"
+                className="w-auto md:w-full justify-start text-muted-foreground hover:text-foreground"
               >
                 <Home className="mr-2 h-4 w-4" />
                 Landing Page
@@ -145,7 +145,7 @@ export default function AdminLayout({
             </Link>
             <Button
               variant="ghost"
-              className="w-full justify-start text-destructive/75 hover:bg-destructive/10 hover:text-destructive"
+              className="w-auto md:w-full justify-start text-destructive/75 hover:bg-destructive/10 hover:text-destructive"
               onClick={() => void signOut().then(() => router.push("/"))}
             >
               <LogOut className="mr-2 h-4 w-4" />
