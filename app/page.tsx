@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
+import { PageAnalytics, useCvHref } from "@/components/page-analytics";
 import { ProjectCarousel } from "@/components/project-carousel";
 import { api } from "@/convex/_generated/api";
 import { slugifyProjectTitle } from "@/lib/project-slug";
+import { defaultSiteContent } from "@/lib/site-content";
 
 const metrics = [
   { label: "Stack focus", value: "Next.js", icon: Code2 },
@@ -23,6 +25,9 @@ const metrics = [
 ];
 
 export default function Home() {
+  const content = useQuery(api.models.siteContent.get) ?? defaultSiteContent;
+  const cv = useQuery(api.models.cv.get);
+  const cvHref = useCvHref();
   const skills = useQuery(api.models.skills.get);
   const projects = useQuery(api.models.projects.list);
 
@@ -58,17 +63,19 @@ export default function Home() {
 
   return (
     <main className="blueprint-page min-h-screen">
+      <PageAnalytics />
       <section className="blueprint-shell blueprint-hero">
         <div className="blueprint-hero-copy">
           <div className="blueprint-kicker">
             <Braces className="h-4 w-4" />
-            Blueprint studio
+            Software engineer · Developer · Creator
           </div>
-          <h1>From rough idea to working product, mapped with intent.</h1>
+          <h1>Hi, I’m Filip. I turn ideas into software.</h1>
           <p>
-            A precise technical portfolio for full-stack builds, UI systems, and
-            project artifacts. Grid lines, measurements, and shipping details
-            stay visible because the craft matters.
+            I’m a software engineer from Slovenia who enjoys building things,
+            exploring new technologies, and solving interesting problems. From
+            web and mobile applications to Minecraft mods, I like bringing ideas
+            to life.
           </p>
           <div className="blueprint-actions">
             <a href="#projects" className="blueprint-primary-action">
@@ -119,19 +126,13 @@ export default function Home() {
 
       <section className="blueprint-shell blueprint-about" id="about">
         <div>
-          <p className="blueprint-section-label">About</p>
-          <h2>Practical engineering with visible taste.</h2>
+          <p className="blueprint-section-label">{content.aboutEyebrow}</p>
+          <h2>{content.aboutHeading}</h2>
         </div>
         <div className="blueprint-about-copy">
-          <p>
-            I am a Computer Programming and IPT student who enjoys turning ideas
-            into products people actually want to use.
-          </p>
-          <p>
-            My typical stack includes Next.js, React, TypeScript, and Convex. I
-            like owning the path from planning and UX to implementation,
-            deployment, and the polish that makes a product feel alive.
-          </p>
+          {content.aboutBody.split(/\n\s*\n/).map((paragraph, index) => (
+            <p key={`${index}-${paragraph.slice(0, 30)}`}>{paragraph}</p>
+          ))}
         </div>
       </section>
 
@@ -237,6 +238,58 @@ export default function Home() {
           </div>
         )}
       </section>
+      <section className="blueprint-shell blueprint-about" id="contact">
+        <div>
+          <p className="blueprint-section-label">{content.contactEyebrow}</p>
+          <h2>{content.contactHeading}</h2>
+        </div>
+        <div className="blueprint-about-copy">
+          <p>{content.contactBody}</p>
+          <p className="text-sm">
+            Based in {content.location} · Full-stack, mobile & game development
+          </p>
+          <div className="blueprint-actions">
+            <a
+              className="blueprint-primary-action"
+              href={`mailto:${content.contactEmail}?subject=${encodeURIComponent("Software engineering opportunity")}`}
+            >
+              Email me <ArrowUpRight className="h-4 w-4" />
+            </a>
+            {cv?.url ? (
+              <a
+                className="blueprint-secondary-action"
+                href={cvHref}
+                download={cv.fileName}
+              >
+                Download CV
+              </a>
+            ) : null}
+            <a
+              className="blueprint-secondary-action"
+              href={content.githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub <ExternalLink className="h-4 w-4" />
+            </a>
+          </div>
+          <a
+            className="text-sm underline underline-offset-4 break-all"
+            href={`mailto:${content.contactEmail}`}
+          >
+            {content.contactEmail}
+          </a>
+        </div>
+      </section>
+      <footer className="blueprint-shell border-t py-8 text-sm text-muted-foreground">
+        <p>
+          © {new Date().getFullYear()} NucleusBeast · Building useful things.
+        </p>
+        <p className="mt-2 text-xs">
+          Anonymous session analytics help improve this portfolio. No names or
+          IP addresses are stored. Do Not Track is respected.
+        </p>
+      </footer>
     </main>
   );
 }

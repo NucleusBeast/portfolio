@@ -2,6 +2,28 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  siteContent: defineTable({
+    key: v.string(),
+    aboutEyebrow: v.string(),
+    aboutHeading: v.string(),
+    aboutBody: v.string(),
+    contactEyebrow: v.string(),
+    contactHeading: v.string(),
+    contactBody: v.string(),
+    contactEmail: v.string(),
+    githubUrl: v.string(),
+    location: v.string(),
+  }).index("by_key", ["key"]),
+  analyticsEvents: defineTable({
+    resource: v.string(),
+    timestamp: v.number(),
+  }),
+  analyticsSessions: defineTable({
+    sessionId: v.string(),
+    resource: v.string(),
+    lastSeen: v.number(),
+    lastEventId: v.string(),
+  }).index("by_sessionId_and_resource", ["sessionId", "resource"]),
   users: defineTable({
     email: v.optional(v.string()),
     isAdmin: v.optional(v.boolean()),

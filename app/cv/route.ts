@@ -1,6 +1,7 @@
 import { ConvexHttpClient } from "convex/browser";
 import { NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
+import { trackCvDownload } from "@/lib/track-cv-download";
 
 function contentDispositionFileName(fileName: string) {
   const fallbackName = fileName.replace(/[^\w.-]/g, "_") || "cv";
@@ -9,7 +10,7 @@ function contentDispositionFileName(fileName: string) {
   return `attachment; filename="${fallbackName}"; filename*=UTF-8''${encodedName}`;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
   if (!convexUrl) {
@@ -34,6 +35,8 @@ export async function GET() {
       { status: 502 },
     );
   }
+
+  await trackCvDownload(request, "pdf");
 
   return new Response(cvResponse.body, {
     headers: {

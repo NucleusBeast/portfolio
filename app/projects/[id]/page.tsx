@@ -13,6 +13,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { PageAnalytics } from "@/components/page-analytics";
 import { ProjectImageFrame } from "@/components/project-carousel";
 import { ProjectDetailSkeleton } from "@/components/project-detail-skeleton";
 import { api } from "@/convex/_generated/api";
@@ -63,6 +64,7 @@ export default function ProjectDetailsPage() {
 
   return (
     <main className="blueprint-page min-h-screen">
+      <PageAnalytics key={project._id} projectId={project._id} />
       <section className="blueprint-shell blueprint-detail">
         <Link href="/" className="blueprint-detail-back">
           <ArrowLeft className="h-4 w-4" />

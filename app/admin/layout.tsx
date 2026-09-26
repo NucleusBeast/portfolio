@@ -3,12 +3,14 @@
 import { useAuth, useUser } from "@clerk/nextjs";
 import { useConvexAuth, useQuery } from "convex/react";
 import {
+  BarChart3,
   FileText,
   FolderKanban,
   Home,
   LogOut,
   Plus,
   Sparkles,
+  UserRound,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +21,8 @@ import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 
 const sidebarItems = [
+  { label: "About & Contact", href: "/admin/about", icon: UserRound },
+  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Projects", href: "/admin/projects", icon: FolderKanban },
   { label: "Skills", href: "/admin/skills", icon: Sparkles },
   { label: "CV", href: "/admin/cv", icon: FileText },
@@ -79,6 +83,8 @@ export default function AdminLayout({
   };
 
   const getPageTitle = () => {
+    if (pathname.includes("/admin/about")) return "About & Contact";
+    if (pathname.includes("/admin/analytics")) return "Analytics";
     if (pathname.includes("/admin/skills")) {
       return "Skills";
     }
@@ -88,21 +94,23 @@ export default function AdminLayout({
     return "Projects";
   };
 
-  const showCreateAction = !pathname.includes("/admin/cv");
+  const showCreateAction =
+    pathname.startsWith("/admin/projects") ||
+    pathname.startsWith("/admin/skills");
 
   return (
-    <div className="admin-shell flex h-screen overflow-hidden">
+    <div className="admin-shell flex min-h-screen flex-col md:h-screen md:flex-row md:overflow-hidden">
       {/* Sidebar */}
-      <aside className="admin-sidebar h-screen w-64 shrink-0 border-r border-sidebar-border">
+      <aside className="admin-sidebar w-full shrink-0 border-b border-sidebar-border md:h-screen md:w-64 md:border-r">
         <div className="flex h-full flex-col">
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             <h2 className="text-lg font-semibold text-sidebar-foreground">
               Admin Panel
             </h2>
             <p className="text-sm text-muted-foreground">Manage your content</p>
           </div>
           <nav className="flex-1 px-4">
-            <ul className="space-y-1">
+            <ul className="flex flex-wrap gap-1 md:block md:space-y-1">
               {sidebarItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = pathname.startsWith(item.href);
@@ -125,7 +133,7 @@ export default function AdminLayout({
               })}
             </ul>
           </nav>
-          <div className="space-y-2 border-t p-4">
+          <div className="flex gap-2 border-t p-3 md:block md:space-y-2 md:p-4">
             <Link href="/">
               <Button
                 variant="ghost"
@@ -148,8 +156,8 @@ export default function AdminLayout({
       </aside>
 
       {/* Main content */}
-      <main className="h-screen min-w-0 flex-1 overflow-y-auto">
-        <header className="admin-topbar sticky top-0 z-20 flex items-center justify-between border-b px-8 py-4">
+      <main className="min-w-0 flex-1 md:h-screen md:overflow-y-auto">
+        <header className="admin-topbar sticky top-0 z-20 flex items-center justify-between border-b px-4 py-4 md:px-8">
           <h1 className="text-2xl font-semibold">{getPageTitle()}</h1>
           {showCreateAction ? (
             <Link href={getCreateLink()}>
@@ -160,7 +168,7 @@ export default function AdminLayout({
             </Link>
           ) : null}
         </header>
-        <div className="p-8">{children}</div>
+        <div className="p-4 md:p-8">{children}</div>
       </main>
     </div>
   );
