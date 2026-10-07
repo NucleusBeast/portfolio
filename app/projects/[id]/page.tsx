@@ -22,7 +22,7 @@ import { slugifyProjectTitle } from "@/lib/project-slug";
 export default function ProjectDetailsPage() {
   const params = useParams<{ id: string }>();
   const projectSlug = params.id;
-  const projects = useQuery(api.models.projects.list);
+  const projects = useQuery(api.models.projects.list, {});
   const project = useMemo(
     () =>
       projects?.find(

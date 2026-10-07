@@ -1,18 +1,21 @@
 "use client";
 
-import type React from "react";
-import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { ArrowLeft, ImagePlus } from "lucide-react";
-import { ProjectImageFrame } from "@/components/project-carousel";
-import type { Id } from "@/convex/_generated/dataModel";
-import { api } from "@/convex/_generated/api";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  ProjectImageEditor,
+  useProjectImages,
+} from "@/components/project-image-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default function EditProjectPage() {
   const router = useRouter();
@@ -21,76 +24,38 @@ export default function EditProjectPage() {
 
   const project = useQuery(api.models.projects.getById, { id: projectId });
   const updateProject = useMutation(api.models.projects.update);
-  const generateUploadUrl = useMutation(api.models.projects.generateUploadUrl);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
-  const [existingImageIds, setExistingImageIds] = useState<Id<"_storage">[]>([]);
-  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
-  const [newFiles, setNewFiles] = useState<File[]>([]);
-  const [newPreviewUrls, setNewPreviewUrls] = useState<string[]>([]);
+  const { images, setImages, addFiles, uploadImages } = useProjectImages();
+  const [showOnLandingPage, setShowOnLandingPage] = useState(true);
+  const loadedProjectId = useRef<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
   useEffect(() => {
-    if (!project) {
-      return;
-    }
-
+    if (!project || loadedProjectId.current === project._id) return;
+    loadedProjectId.current = project._id;
     setTitle(project.title);
     setDescription(project.description);
     setUrl(project.url ?? "");
     setGithubUrl(project.githubUrl ?? "");
-    setExistingImageIds(project.imageIds);
-    setExistingImageUrls(project.imageUrls);
-  }, [project]);
-
-  useEffect(() => {
-    return () => {
-      newPreviewUrls.forEach((previewUrl) => URL.revokeObjectURL(previewUrl));
-    };
-  }, [newPreviewUrls]);
+    setShowOnLandingPage(project.showOnLandingPage ?? true);
+    setImages(
+      project.images.map((image) => ({
+        key: image.imageId,
+        imageId: image.imageId,
+        previewUrl: image.imageUrl,
+      })),
+    );
+  }, [project, setImages]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) {
-      return;
-    }
-
-    const filesToAdd = Array.from(selectedFiles);
-    const validFiles: File[] = [];
-    const validPreviews: string[] = [];
-
-    for (const f of filesToAdd) {
-      if (!f.type.startsWith("image/")) {
-        setError("Only image files are allowed.");
-        continue;
-      }
-      if (f.size > MAX_FILE_SIZE) {
-        setError("Each image must be 5 MB or smaller.");
-        continue;
-      }
-      validFiles.push(f);
-      validPreviews.push(URL.createObjectURL(f));
-    }
-
-    setNewFiles((current) => [...current, ...validFiles]);
-    setNewPreviewUrls((current) => [...current, ...validPreviews]);
-  };
-
-  const removeExistingImage = (index: number) => {
-    setExistingImageIds((current) => current.filter((_, i) => i !== index));
-    setExistingImageUrls((current) => current.filter((_, i) => i !== index));
-  };
-
-  const removeNewImage = (index: number) => {
-    setNewFiles((current) => current.filter((_, i) => i !== index));
-    setNewPreviewUrls((current) => current.filter((_, i) => i !== index));
+    addFiles(event.target.files, setError);
+    event.target.value = "";
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -101,36 +66,7 @@ export default function EditProjectPage() {
     setUploadProgress(0);
 
     try {
-      const uploadedImageIds: Id<"_storage">[] = [];
-
-      if (newFiles.length > 0) {
-        let completed = 0;
-
-        await Promise.all(
-          newFiles.map(async (file) => {
-            const uploadUrl = await generateUploadUrl();
-            const response = await fetch(uploadUrl, {
-              method: "POST",
-              headers: {
-                "Content-Type": file.type,
-              },
-              body: file,
-            });
-
-            if (!response.ok) {
-              throw new Error("Image upload failed");
-            }
-
-            const { storageId } = (await response.json()) as {
-              storageId: Id<"_storage">;
-            };
-
-            uploadedImageIds.push(storageId);
-            completed += 1;
-            setUploadProgress(Math.round((completed / newFiles.length) * 100));
-          }),
-        );
-      }
+      const imageIds = await uploadImages(setUploadProgress);
 
       await updateProject({
         id: projectId,
@@ -138,7 +74,8 @@ export default function EditProjectPage() {
         description,
         url: url || undefined,
         githubUrl: githubUrl || undefined,
-        imageIds: [...existingImageIds, ...uploadedImageIds],
+        imageIds,
+        showOnLandingPage,
       });
 
       router.push("/admin/projects");
@@ -148,22 +85,6 @@ export default function EditProjectPage() {
       setIsSubmitting(false);
     }
   };
-
-  const allPreviewBlocks = useMemo(
-    () => [
-      ...existingImageUrls.map((previewUrl, index) => ({
-        key: `existing-${previewUrl}`,
-        previewUrl,
-        onRemove: () => removeExistingImage(index),
-      })),
-      ...newPreviewUrls.map((previewUrl, index) => ({
-        key: `new-${previewUrl}`,
-        previewUrl,
-        onRemove: () => removeNewImage(index),
-      })),
-    ],
-    [existingImageUrls, newPreviewUrls],
-  );
 
   if (project === undefined) {
     return <div className="text-muted-foreground">Loading project...</div>;
@@ -186,7 +107,9 @@ export default function EditProjectPage() {
       <section className="space-y-6">
         <header className="mb-4">
           <h1 className="text-2xl font-semibold">Edit Project</h1>
-          <p className="text-sm text-muted-foreground">Update your project details and images</p>
+          <p className="text-sm text-muted-foreground">
+            Update your project details and images
+          </p>
         </header>
         <div>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -196,6 +119,11 @@ export default function EditProjectPage() {
               </div>
             ) : null}
 
+            {isSubmitting && uploadProgress > 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Uploading images: {uploadProgress}%
+              </p>
+            ) : null}
             <div className="space-y-2">
               <Label htmlFor="title">Project Title</Label>
               <Input
@@ -225,38 +153,39 @@ export default function EditProjectPage() {
                   accept="image/*"
                   multiple
                   onChange={handleFileChange}
+                  disabled={isSubmitting}
                 />
                 <Button type="button" variant="outline" size="icon" disabled>
                   <ImagePlus className="h-4 w-4" />
                 </Button>
               </div>
-              {allPreviewBlocks.length > 0 ? (
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  {allPreviewBlocks.map((item) => (
-                    <div
-                      key={item.key}
-                      className="relative aspect-video overflow-hidden rounded-lg border bg-muted"
-                    >
-                      <ProjectImageFrame
-                        src={item.previewUrl}
-                        alt="Project image"
-                        width={960}
-                        height={540}
-                        className="pointer-events-none"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute right-2 top-2 z-20"
-                        onClick={item.onRemove}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
+              <ProjectImageEditor
+                images={images}
+                onChange={setImages}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="showOnLandingPage"
+                className="flex items-center gap-2"
+              >
+                <input
+                  id="showOnLandingPage"
+                  type="checkbox"
+                  checked={showOnLandingPage}
+                  onChange={(event) =>
+                    setShowOnLandingPage(event.target.checked)
+                  }
+                  disabled={isSubmitting}
+                  className="h-4 w-4 accent-primary"
+                />
+                Show on landing page
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Hidden projects remain available through their direct link.
+              </p>
             </div>
 
             <div className="space-y-2">

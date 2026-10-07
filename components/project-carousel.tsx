@@ -28,7 +28,12 @@ export function ProjectImageFrame({
   className,
 }: ProjectImageFrameProps) {
   return (
-    <div className={cn("relative h-full w-full overflow-hidden", className)}>
+    <div
+      className={cn(
+        "relative isolate h-full w-full overflow-hidden",
+        className,
+      )}
+    >
       <Image
         src={src}
         alt=""

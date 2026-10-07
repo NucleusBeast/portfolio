@@ -1,13 +1,16 @@
 "use client";
 
-import type React from "react";
-import { useEffect, useState } from "react";
+import { useMutation } from "convex/react";
+import { ArrowLeft, ImagePlus } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ProjectImageFrame } from "@/components/project-carousel";
+import type React from "react";
+import { useState } from "react";
+import {
+  ProjectImageEditor,
+  useProjectImages,
+} from "@/components/project-image-editor";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -15,11 +18,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ArrowLeft, ImagePlus } from "lucide-react";
-import Link from "next/link";
-import { useMutation } from "convex/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
 
 export default function NewProjectPage() {
   const router = useRouter();
@@ -27,49 +29,17 @@ export default function NewProjectPage() {
   const [description, setDescription] = useState("");
   const [url, setUrl] = useState("");
   const [githubUrl, setGithubUrl] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
-  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
+  const { images, setImages, addFiles, uploadImages } = useProjectImages();
+  const [showOnLandingPage, setShowOnLandingPage] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [uploadProgress, setUploadProgress] = useState(0);
 
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
-
-  const generateUploadUrl = useMutation(api.models.projects.generateUploadUrl);
   const createProject = useMutation(api.models.projects.create);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = event.target.files;
-    if (!selectedFiles || selectedFiles.length === 0) {
-      setFiles([]);
-      setPreviewUrls([]);
-      return;
-    }
-
-    const nextFiles = Array.from(selectedFiles);
-    const validFiles: File[] = [];
-    const previews: string[] = [];
-
-    for (const f of nextFiles) {
-      if (!f.type.startsWith("image/")) {
-        setError("Only image files are allowed.");
-        continue;
-      }
-      if (f.size > MAX_FILE_SIZE) {
-        setError("Each image must be 5 MB or smaller.");
-        continue;
-      }
-      validFiles.push(f);
-      previews.push(URL.createObjectURL(f));
-    }
-
-    setFiles(validFiles);
-    setPreviewUrls(previews);
-  };
-
-  const removeImageAtIndex = (targetIndex: number) => {
-    setFiles((current) => current.filter((_, index) => index !== targetIndex));
-    setPreviewUrls((current) => current.filter((_, index) => index !== targetIndex));
+    addFiles(event.target.files, setError);
+    event.target.value = "";
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -80,36 +50,7 @@ export default function NewProjectPage() {
     setUploadProgress(0);
 
     try {
-      const imageIds: Id<"_storage">[] = [];
-
-      if (files.length > 0) {
-        let completed = 0;
-
-        await Promise.all(
-          files.map(async (file) => {
-            const uploadUrl = await generateUploadUrl();
-            const uploadResponse = await fetch(uploadUrl, {
-              method: "POST",
-              headers: {
-                "Content-Type": file.type,
-              },
-              body: file,
-            });
-
-            if (!uploadResponse.ok) {
-              throw new Error("Image upload failed");
-            }
-
-            const { storageId } = (await uploadResponse.json()) as {
-              storageId: Id<"_storage">;
-            };
-
-            imageIds.push(storageId);
-            completed += 1;
-            setUploadProgress(Math.round((completed / files.length) * 100));
-          }),
-        );
-      }
+      const imageIds = await uploadImages(setUploadProgress);
 
       await createProject({
         title,
@@ -117,6 +58,7 @@ export default function NewProjectPage() {
         url: url || undefined,
         githubUrl: githubUrl || undefined,
         imageIds,
+        showOnLandingPage,
       });
 
       router.push("/admin/projects");
@@ -126,12 +68,6 @@ export default function NewProjectPage() {
       setIsSubmitting(false);
     }
   };
-
-  useEffect(() => {
-    return () => {
-      previewUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [previewUrls]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -157,7 +93,9 @@ export default function NewProjectPage() {
             ) : null}
 
             {isSubmitting && uploadProgress > 0 ? (
-              <div className="text-sm text-muted-foreground">Uploading images: {uploadProgress}%</div>
+              <div className="text-sm text-muted-foreground">
+                Uploading images: {uploadProgress}%
+              </div>
             ) : null}
 
             <div className="space-y-2">
@@ -183,7 +121,7 @@ export default function NewProjectPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image">Cover Image</Label>
+              <Label htmlFor="image">Add Images</Label>
               <div className="flex gap-2">
                 <Input
                   id="image"
@@ -191,38 +129,39 @@ export default function NewProjectPage() {
                   accept="image/*"
                   multiple
                   onChange={handleFileChange}
+                  disabled={isSubmitting}
                 />
                 <Button type="button" variant="outline" size="icon" disabled>
                   <ImagePlus className="h-4 w-4" />
                 </Button>
               </div>
-              {previewUrls.length > 0 ? (
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
-                  {previewUrls.map((previewUrl, index) => (
-                    <div
-                      key={previewUrl}
-                      className="relative aspect-video overflow-hidden rounded-lg border bg-muted"
-                    >
-                      <ProjectImageFrame
-                        src={previewUrl}
-                        alt={`Preview ${index + 1}`}
-                        width={960}
-                        height={540}
-                        className="pointer-events-none"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute right-2 top-2 z-20"
-                        onClick={() => removeImageAtIndex(index)}
-                      >
-                        Remove
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              ) : null}
+              <ProjectImageEditor
+                images={images}
+                onChange={setImages}
+                disabled={isSubmitting}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label
+                htmlFor="showOnLandingPage"
+                className="flex items-center gap-2"
+              >
+                <input
+                  id="showOnLandingPage"
+                  type="checkbox"
+                  checked={showOnLandingPage}
+                  onChange={(event) =>
+                    setShowOnLandingPage(event.target.checked)
+                  }
+                  disabled={isSubmitting}
+                  className="h-4 w-4 accent-primary"
+                />
+                Show on landing page
+              </Label>
+              <p className="text-sm text-muted-foreground">
+                Hidden projects remain available through their direct link.
+              </p>
             </div>
 
             <div className="space-y-2">

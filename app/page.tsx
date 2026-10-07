@@ -29,7 +29,7 @@ export default function Home() {
   const cv = useQuery(api.models.cv.get);
   const cvHref = useCvHref();
   const skills = useQuery(api.models.skills.get);
-  const projects = useQuery(api.models.projects.list);
+  const projects = useQuery(api.models.projects.list, { landingOnly: true });
 
   const sortedSkills = useMemo(
     () =>

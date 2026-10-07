@@ -36,7 +36,8 @@ export default defineSchema({
     githubUrl: v.optional(v.string()),
     imageId: v.optional(v.id("_storage")),
     imageIds: v.optional(v.array(v.id("_storage"))),
-  }),
+    showOnLandingPage: v.optional(v.boolean()),
+  }).index("by_showOnLandingPage", ["showOnLandingPage"]),
   cvs: defineTable({
     key: v.string(),
     fileName: v.string(),
