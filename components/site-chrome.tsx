@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/navbar";
+import { StatusBar } from "@/components/status-bar";
 
 export function SiteChrome() {
   const pathname = usePathname();
@@ -10,5 +11,10 @@ export function SiteChrome() {
     return null;
   }
 
-  return <Navbar />;
+  return (
+    <>
+      <Navbar />
+      <StatusBar />
+    </>
+  );
 }

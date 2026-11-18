@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { NextResponse } from "next/server";
 import { api } from "@/convex/_generated/api";
@@ -12,9 +12,7 @@ function contentDispositionFileName(fileName: string) {
 }
 
 export async function GET(request: Request) {
-  const { userId } = await auth();
-
-  if (!userId) {
+  if (!(await isAuthenticatedNextjs())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

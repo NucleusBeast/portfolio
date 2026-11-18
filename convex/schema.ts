@@ -1,7 +1,9 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  ...authTables,
   siteContent: defineTable({
     key: v.string(),
     aboutEyebrow: v.string(),
@@ -25,10 +27,17 @@ export default defineSchema({
     lastEventId: v.string(),
   }).index("by_sessionId_and_resource", ["sessionId", "resource"]),
   users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
     email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
     isAdmin: v.optional(v.boolean()),
-    // other "users" fields...
-  }).index("email", ["email"]),
+  })
+    .index("email", ["email"])
+    .index("phone", ["phone"]),
   projects: defineTable({
     title: v.string(),
     description: v.string(),
@@ -68,6 +77,15 @@ export default defineSchema({
     text: v.string(),
     isCompleted: v.boolean(),
   }),
+  mcpTokens: defineTable({
+    name: v.string(),
+    // SHA-256 of the token. The raw token is shown once and never stored.
+    tokenHash: v.string(),
+    // First characters of the token, so you can recognize it in the admin UI.
+    prefix: v.string(),
+    createdBy: v.string(),
+    lastUsedAt: v.optional(v.number()),
+  }).index("by_tokenHash", ["tokenHash"]),
   admins: defineTable({
     email: v.string(),
   }).index("email", ["email"]),

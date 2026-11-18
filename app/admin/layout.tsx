@@ -1,32 +1,16 @@
 "use client";
 
-import { useAuth, useUser } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth, useQuery } from "convex/react";
-import {
-  BarChart3,
-  FileText,
-  FolderKanban,
-  Home,
-  LogOut,
-  Plus,
-  Sparkles,
-  UserRound,
-} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { StatusBar } from "@/components/status-bar";
+import { ThemePicker } from "@/components/theme-picker";
 import { api } from "@/convex/_generated/api";
+import { adminSidebarItems } from "@/lib/admin-nav";
 import { cn } from "@/lib/utils";
-
-const sidebarItems = [
-  { label: "About & Contact", href: "/admin/about", icon: UserRound },
-  { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-  { label: "Projects", href: "/admin/projects", icon: FolderKanban },
-  { label: "Skills", href: "/admin/skills", icon: Sparkles },
-  { label: "CV", href: "/admin/cv", icon: FileText },
-];
 
 export default function AdminLayout({
   children,
@@ -35,18 +19,16 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { signOut } = useAuth();
-  const { isLoading: isConvexAuthLoading } = useConvexAuth();
-  const { user, isLoaded } = useUser();
-  const email = user?.primaryEmailAddress?.emailAddress;
+  const { signOut } = useAuthActions();
+  const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
   const isAdmin = useQuery(api.models.admins.currentUserIsAdmin);
 
   useEffect(() => {
-    if (!isLoaded || isConvexAuthLoading) {
+    if (isAuthLoading) {
       return;
     }
 
-    if (!email) {
+    if (!isAuthenticated) {
       router.replace("/sign-in");
       return;
     }
@@ -54,12 +36,15 @@ export default function AdminLayout({
     if (isAdmin === false) {
       router.replace("/");
     }
-  }, [email, isAdmin, isConvexAuthLoading, isLoaded, router]);
+  }, [isAdmin, isAuthLoading, isAuthenticated, router]);
 
-  if (!isLoaded || isConvexAuthLoading || isAdmin === undefined) {
+  if (isAuthLoading || !isAuthenticated || isAdmin === undefined) {
     return (
       <main className="flex min-h-screen items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-muted-foreground">
+          authenticating
+          <span className="tui-ellipsis" />
+        </div>
       </main>
     );
   }
@@ -77,9 +62,9 @@ export default function AdminLayout({
 
   const getCreateLabel = () => {
     if (pathname.includes("/admin/skills")) {
-      return "New Skill";
+      return "new skill";
     }
-    return "New Project";
+    return "new project";
   };
 
   const getPageTitle = () => {
@@ -91,6 +76,7 @@ export default function AdminLayout({
     if (pathname.includes("/admin/cv")) {
       return "CV";
     }
+    if (pathname.includes("/admin/mcp")) return "Claude (MCP)";
     return "Projects";
   };
 
@@ -99,77 +85,82 @@ export default function AdminLayout({
     pathname.startsWith("/admin/skills");
 
   return (
-    <div className="admin-shell flex min-h-screen flex-col md:h-screen md:flex-row md:overflow-hidden">
-      {/* Sidebar */}
-      <aside className="admin-sidebar w-full shrink-0 border-b border-sidebar-border md:h-screen md:w-64 md:border-r">
-        <div className="flex h-full flex-col">
-          <div className="p-4 md:p-6">
-            <h2 className="text-lg font-semibold text-sidebar-foreground">
-              Admin Panel
-            </h2>
-            <p className="text-sm text-muted-foreground">Manage your content</p>
-          </div>
-          <nav className="flex-1 px-4">
-            <ul className="flex flex-wrap gap-1 md:block md:space-y-1">
-              {sidebarItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname.startsWith(item.href);
-                return (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                        isActive
-                          ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent/50",
-                      )}
-                    >
-                      <Icon className="h-4 w-4" />
-                      {item.label}
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-          <div className="flex gap-2 border-t p-3 md:block md:space-y-2 md:p-4">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                className="w-auto md:w-full justify-start text-muted-foreground hover:text-foreground"
-              >
-                <Home className="mr-2 h-4 w-4" />
-                Landing Page
-              </Button>
-            </Link>
-            <Button
-              variant="ghost"
-              className="w-auto md:w-full justify-start text-destructive/75 hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => void signOut().then(() => router.push("/"))}
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Button>
-          </div>
+    <div className="admin-shell">
+      <aside className="admin-sidebar">
+        <div className="admin-sidebar-head">
+          <p className="admin-sidebar-host">
+            <span>admin</span>@nucleusbeast
+          </p>
+          <p className="tui-comment"># manage your content</p>
+        </div>
+
+        <nav className="admin-tree" aria-label="Admin">
+          <p className="admin-tree-root">~/admin</p>
+          <ul>
+            {adminSidebarItems.map((item, index) => {
+              const isActive = pathname.startsWith(item.href);
+              const isLast = index === adminSidebarItems.length - 1;
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "admin-tree-item",
+                      isActive && "admin-tree-item-active",
+                    )}
+                    aria-current={isActive ? "page" : undefined}
+                    title={item.label}
+                  >
+                    <span className="admin-tree-branch" aria-hidden="true">
+                      {isLast ? "└── " : "├── "}
+                    </span>
+                    <span className="admin-tree-name">{item.file}</span>
+                    <span className="admin-tree-key">{index + 1}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div className="admin-sidebar-foot">
+          <Link href="/" className="tui-text-btn">
+            ← landing
+          </Link>
+          <button
+            type="button"
+            className="tui-text-btn admin-logout"
+            onClick={() => void signOut().then(() => router.push("/"))}
+          >
+            logout
+          </button>
         </div>
       </aside>
 
-      {/* Main content */}
-      <main className="min-w-0 flex-1 md:h-screen md:overflow-y-auto">
-        <header className="admin-topbar sticky top-0 z-20 flex items-center justify-between border-b px-4 py-4 md:px-8">
-          <h1 className="text-2xl font-semibold">{getPageTitle()}</h1>
-          {showCreateAction ? (
-            <Link href={getCreateLink()}>
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                {getCreateLabel()}
-              </Button>
-            </Link>
-          ) : null}
+      <main className="admin-main">
+        <header className="admin-topbar">
+          <div className="min-w-0">
+            <p className="tui-comment admin-topbar-path">~{pathname}</p>
+            <h1 className="admin-topbar-title">
+              <span className="tui-hash">##</span> {getPageTitle()}
+            </h1>
+          </div>
+          <div className="admin-topbar-actions">
+            <ThemePicker side="bottom" />
+            {showCreateAction ? (
+              <Link
+                href={getCreateLink()}
+                className="tui-button tui-button-primary"
+              >
+                + {getCreateLabel()}
+              </Link>
+            ) : null}
+          </div>
         </header>
-        <div className="p-4 md:p-8">{children}</div>
+        <div className="admin-content">{children}</div>
       </main>
+
+      <StatusBar variant="admin" />
     </div>
   );
 }

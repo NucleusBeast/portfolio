@@ -1,12 +1,10 @@
 "use client";
 
-import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { FileDown, FileText, Github } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useCvHref } from "@/components/page-analytics";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,15 +15,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { tuiSections, useActiveSection } from "@/components/use-active-section";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { label: "Home", href: "/", isSection: false },
-  { label: "About", href: "#about", isSection: true },
-  { label: "Projects", href: "#projects", isSection: true },
-  { label: "Contact", href: "#contact", isSection: true },
-];
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -34,80 +26,32 @@ export default function Navbar() {
   const wordHref = useCvHref("/cv/word");
   const pagesHref = useCvHref("/cv/pages");
   const cv = useQuery(api.models.cv.get);
-  const [activeItem, setActiveItem] = useState("/");
-
-  useEffect(() => {
-    if (!isHomePage) {
-      setActiveItem(pathname === "/" ? "/" : "");
-      return;
-    }
-
-    const updateActiveItem = () => {
-      const aboutSection = document.getElementById("about");
-      const projectsSection = document.getElementById("projects");
-      const contactSection = document.getElementById("contact");
-      const scrollPosition = window.scrollY + 140;
-
-      if (contactSection && scrollPosition >= contactSection.offsetTop) {
-        setActiveItem("#contact");
-        return;
-      }
-
-      if (projectsSection && scrollPosition >= projectsSection.offsetTop) {
-        setActiveItem("#projects");
-        return;
-      }
-
-      if (aboutSection && scrollPosition >= aboutSection.offsetTop) {
-        setActiveItem("#about");
-        return;
-      }
-
-      setActiveItem("/");
-    };
-
-    updateActiveItem();
-    window.addEventListener("scroll", updateActiveItem, { passive: true });
-    window.addEventListener("hashchange", updateActiveItem);
-
-    return () => {
-      window.removeEventListener("scroll", updateActiveItem);
-      window.removeEventListener("hashchange", updateActiveItem);
-    };
-  }, [isHomePage, pathname]);
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
+  const activeItem = useActiveSection(isHomePage);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-      <nav className="mx-auto flex min-h-20 flex-wrap gap-y-2 py-3 w-full max-w-6xl items-center justify-between px-4">
-        <div className="flex items-center gap-3 sm:gap-6">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-foreground transition-opacity hover:opacity-90"
-          >
-            <Image src="/logo.png" alt="Logo" width={34} height={34} />
-            <span className="hidden text-base font-semibold tracking-wide sm:inline-block">
-              NucleusBeast
-            </span>
+    <header className="tui-topbar">
+      <nav className="tui-shell tui-topbar-inner" aria-label="Main">
+        <div className="tui-topbar-left">
+          <Link href="/" className="tui-brand">
+            <Image src="/logo.png" alt="Logo" width={22} height={22} />
+            <span>nucleusbeast</span>
           </Link>
 
-          <ul className="flex items-center gap-2 sm:gap-5 border-b border-border/60 px-1">
-            {navItems.map((item) => (
+          <ul className="tui-tabs">
+            {tuiSections.map((item) => (
               <li key={item.href}>
                 <Link
                   href={
-                    item.isSection
-                      ? isHomePage
-                        ? item.href
-                        : `/${item.href}`
-                      : item.href
+                    item.id ? (isHomePage ? item.href : `/${item.href}`) : "/"
                   }
                   className={cn(
-                    "inline-flex border-b-2 border-transparent px-1 py-2 text-sm sm:text-base font-medium transition-colors",
-                    activeItem === item.href
-                      ? "border-primary text-foreground"
-                      : "text-muted-foreground hover:border-border hover:text-foreground",
+                    "tui-tab",
+                    activeItem === item.href && "tui-tab-active",
                   )}
+                  aria-current={activeItem === item.href ? "true" : undefined}
                 >
+                  <span className="tui-tab-key">{item.key}</span>
                   {item.label}
                 </Link>
               </li>
@@ -115,14 +59,14 @@ export default function Navbar() {
           </ul>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="tui-topbar-actions">
           <a
             href="https://github.com/NucleusBeast"
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open NucleusBeast on GitHub"
             title="Open GitHub"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background text-foreground transition-colors hover:bg-accent"
+            className="tui-icon-btn"
           >
             <Github className="h-4 w-4" />
           </a>
@@ -133,92 +77,85 @@ export default function Navbar() {
               download={cv.fileName}
               aria-label="Download CV"
               title="Download CV"
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background text-foreground transition-colors hover:bg-accent"
+              className="tui-icon-btn"
             >
               <FileDown className="h-4 w-4" />
             </a>
           ) : null}
 
-          <SignedIn>
-            {cv?.wordUrl || cv?.pagesUrl ? (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <button
-                    type="button"
-                    aria-label="Download editable CV"
-                    title="Download editable CV"
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-full border bg-background text-foreground transition-colors hover:bg-accent"
-                  >
-                    <FileText className="h-4 w-4" />
-                  </button>
-                </DialogTrigger>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Download editable CV</DialogTitle>
-                    <DialogDescription>
-                      Choose the file format you want to download.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="flex flex-col gap-3">
-                    {cv?.wordUrl ? (
-                      <Button asChild variant="outline">
-                        <a
-                          href={wordHref}
-                          download={cv.wordFileName ?? "cv.docx"}
-                        >
-                          <FileText className="h-4 w-4" />
-                          Word document
-                        </a>
-                      </Button>
-                    ) : (
-                      <Button type="button" variant="outline" disabled>
+          {isAuthenticated && (cv?.wordUrl || cv?.pagesUrl) ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Download editable CV"
+                  title="Download editable CV"
+                  className="tui-icon-btn"
+                >
+                  <FileText className="h-4 w-4" />
+                </button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Download editable CV</DialogTitle>
+                  <DialogDescription>
+                    Choose the file format you want to download.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-3">
+                  {cv?.wordUrl ? (
+                    <Button asChild variant="outline">
+                      <a
+                        href={wordHref}
+                        download={cv.wordFileName ?? "cv.docx"}
+                      >
                         <FileText className="h-4 w-4" />
-                        Word document unavailable
-                      </Button>
-                    )}
-                    {cv?.pagesUrl ? (
-                      <Button asChild variant="outline">
-                        <a
-                          href={pagesHref}
-                          download={cv.pagesFileName ?? "cv.pages"}
-                        >
-                          <FileText className="h-4 w-4" />
-                          macOS Pages document
-                        </a>
-                      </Button>
-                    ) : (
-                      <Button type="button" variant="outline" disabled>
+                        Word document
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="outline" disabled>
+                      <FileText className="h-4 w-4" />
+                      Word document unavailable
+                    </Button>
+                  )}
+                  {cv?.pagesUrl ? (
+                    <Button asChild variant="outline">
+                      <a
+                        href={pagesHref}
+                        download={cv.pagesFileName ?? "cv.pages"}
+                      >
                         <FileText className="h-4 w-4" />
-                        macOS Pages document unavailable
-                      </Button>
-                    )}
-                  </div>
-                </DialogContent>
-              </Dialog>
-            ) : null}
-          </SignedIn>
+                        macOS Pages document
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button type="button" variant="outline" disabled>
+                      <FileText className="h-4 w-4" />
+                      macOS Pages document unavailable
+                    </Button>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          ) : null}
 
-          <SignedOut>
-            <Link
-              href="/sign-in"
-              className="ml-2 rounded-full border bg-background px-5 py-2.5 text-base font-medium text-foreground transition-colors hover:bg-accent"
-            >
-              Sign In
+          {!isAuthLoading && !isAuthenticated ? (
+            <Link href="/sign-in" className="tui-text-btn">
+              sign-in
             </Link>
-          </SignedOut>
-          <SignedIn>
+          ) : null}
+          {isAuthenticated ? (
             <Link
               href="/admin/projects"
               className={cn(
-                "ml-2 rounded-full px-5 py-2.5 text-base font-medium transition-colors",
-                pathname.startsWith("/admin")
-                  ? "bg-primary text-primary-foreground"
-                  : "border bg-background text-foreground hover:bg-accent",
+                "tui-text-btn",
+                pathname.startsWith("/admin") && "tui-text-btn-active",
               )}
             >
-              Admin
+              admin
             </Link>
-          </SignedIn>
+          ) : null}
         </div>
       </nav>
     </header>

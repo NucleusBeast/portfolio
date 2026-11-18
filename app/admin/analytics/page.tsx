@@ -22,7 +22,7 @@ export default function AnalyticsPage() {
   const cv = useQuery(api.models.cv.get);
   const maxViews = Math.max(1, ...(stats?.daily.map((d) => d.views) ?? []));
   return (
-    <div className="max-w-6xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold">Portfolio traffic</h2>

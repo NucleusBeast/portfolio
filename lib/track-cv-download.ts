@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { after } from "next/server";
 import { api } from "@/convex/_generated/api";
@@ -17,8 +17,7 @@ export async function trackCvDownload(
   )
     return;
   try {
-    const { getToken } = await auth();
-    const token = await getToken({ template: "convex" });
+    const token = await convexAuthNextjsToken();
     const supplied = new URL(request.url).searchParams.get("sid") ?? "";
     const sessionId = /^[0-9a-f-]{36}$/i.test(supplied)
       ? supplied

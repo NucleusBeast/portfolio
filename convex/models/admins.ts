@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { query } from "../_generated/server";
-import { requireAdmin } from "./auth";
+import { currentUserIsAdmin as isCurrentUserAdmin, requireAdmin } from "./auth";
 
 export const get = query({
   args: {},
@@ -30,18 +30,6 @@ export const isAdminByEmail = query({
 export const currentUserIsAdmin = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    const email = identity?.email;
-
-    if (!email) {
-      return false;
-    }
-
-    const admin = await ctx.db
-      .query("admins")
-      .withIndex("email", (q) => q.eq("email", email))
-      .unique();
-
-    return admin !== null;
+    return await isCurrentUserAdmin(ctx);
   },
 });

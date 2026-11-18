@@ -4,7 +4,7 @@ import { v } from "convex/values";
 import { components } from "../_generated/api";
 import type { DataModel } from "../_generated/dataModel";
 import { mutation, query } from "../_generated/server";
-import { requireAdmin } from "./auth";
+import { currentUserIsAdmin, requireAdmin } from "./auth";
 
 const views = new TableAggregate<{
   Namespace: string;
@@ -47,16 +47,7 @@ export const record = mutation({
     const uuid =
       /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuid.test(args.sessionId) || !uuid.test(args.eventId)) return null;
-    const identity = await ctx.auth.getUserIdentity();
-    const email = identity?.email;
-    if (
-      email &&
-      (await ctx.db
-        .query("admins")
-        .withIndex("email", (q) => q.eq("email", email))
-        .unique())
-    )
-      return null;
+    if (await currentUserIsAdmin(ctx)) return null;
     let resources: string[];
     if (args.kind === "cv") {
       if (!args.format || args.projectId) return null;

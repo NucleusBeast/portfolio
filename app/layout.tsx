@@ -1,21 +1,16 @@
-import { ClerkProvider } from "@clerk/nextjs";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import type React from "react";
 import { ConvexClientProvider } from "@/app/ConvexClientProvider";
-import { ModeToggle } from "@/components/mode-toggle";
 import { SiteChrome } from "@/components/site-chrome";
 import { ThemeProvider } from "@/components/theme-provider";
+import { tuiThemeIds } from "@/lib/themes";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
+  subsets: ["latin", "latin-ext"],
 });
 
 export const metadata: Metadata = {
@@ -26,20 +21,13 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const publishableKey = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-
   return (
-    <ClerkProvider
-      publishableKey={
-        publishableKey || "pk_test_ZXhhbXBsZS5jbGVyay5hY2NvdW50cy5kZXYk"
-      }
-    >
+    <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
+        <body className={`${jetbrainsMono.variable} antialiased`}>
           <ThemeProvider
-            attribute="class"
+            attribute="data-theme"
+            themes={tuiThemeIds}
             defaultTheme="system"
             enableSystem
             disableTransitionOnChange
@@ -48,12 +36,9 @@ export default function RootLayout({
               <SiteChrome />
               {children}
             </ConvexClientProvider>
-            <div className="fixed bottom-4 right-4">
-              <ModeToggle />
-            </div>
           </ThemeProvider>
         </body>
       </html>
-    </ClerkProvider>
+    </ConvexAuthNextjsServerProvider>
   );
 }

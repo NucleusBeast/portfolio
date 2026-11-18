@@ -55,7 +55,7 @@ function ContentEditor({ initial }: { initial: SiteContent }) {
   );
   return (
     <form
-      className="max-w-3xl space-y-8"
+      className="mx-auto max-w-3xl space-y-8"
       onSubmit={async (e) => {
         e.preventDefault();
         setBusy(true);

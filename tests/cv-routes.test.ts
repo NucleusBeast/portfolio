@@ -11,7 +11,9 @@ vi.mock("convex/browser", () => ({
   },
 }));
 vi.mock("@/lib/track-cv-download", () => ({ trackCvDownload: mocks.track }));
-vi.mock("@clerk/nextjs/server", () => ({ auth: mocks.auth }));
+vi.mock("@convex-dev/auth/nextjs/server", () => ({
+  isAuthenticatedNextjs: mocks.auth,
+}));
 
 import { GET as getPages } from "../app/cv/pages/route";
 import { GET } from "../app/cv/route";
@@ -63,7 +65,7 @@ test("successful CV response streams attachment and records its format", async (
   vi.unstubAllGlobals();
 });
 test("editable downloads still require authentication", async () => {
-  mocks.auth.mockResolvedValue({ userId: null });
+  mocks.auth.mockResolvedValue(false);
   expect(
     (await getWord(new Request("https://example.com/cv/word"))).status,
   ).toBe(401);

@@ -7,6 +7,7 @@ import { afterEach, describe, expect, test, vi } from "vitest";
 import { api } from "../convex/_generated/api";
 import schema from "../convex/schema";
 import { defaultSiteContent } from "../lib/site-content";
+import { asUser } from "./auth-helpers";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 const DAY = 86_400_000;
@@ -23,7 +24,7 @@ async function setup() {
       description: "A project",
     });
   });
-  const admin = t.withIdentity({ email: "admin@example.com" });
+  const admin = await asUser(t, "admin@example.com");
   return { t, admin, id };
 }
 const event = () => ({
@@ -42,9 +43,10 @@ describe("About content", () => {
       t.mutation(api.models.siteContent.save, defaultSiteContent),
     ).rejects.toThrow("Unauthorized");
     await expect(
-      t
-        .withIdentity({ email: "other@example.com" })
-        .mutation(api.models.siteContent.save, defaultSiteContent),
+      (await asUser(t, "other@example.com")).mutation(
+        api.models.siteContent.save,
+        defaultSiteContent,
+      ),
     ).rejects.toThrow("Forbidden");
     await expect(
       admin.mutation(api.models.siteContent.save, {

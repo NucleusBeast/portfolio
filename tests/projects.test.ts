@@ -4,13 +4,14 @@ import { convexTest } from "convex-test";
 import { expect, test } from "vitest";
 import { api } from "../convex/_generated/api";
 import schema from "../convex/schema";
+import { asUser } from "./auth-helpers";
 
 const modules = import.meta.glob("../convex/**/*.ts");
 
 async function setup() {
   const t = convexTest(schema, modules);
   await t.run((ctx) => ctx.db.insert("admins", { email: "admin@example.com" }));
-  return { t, admin: t.withIdentity({ email: "admin@example.com" }) };
+  return { t, admin: await asUser(t, "admin@example.com") };
 }
 
 test("landing visibility defaults to visible for legacy and new projects, and toggles without losing details", async () => {
@@ -76,12 +77,13 @@ test("only admins can change project visibility", async () => {
     }),
   ).rejects.toThrow("Unauthorized");
   await expect(
-    t
-      .withIdentity({ email: "other@example.com" })
-      .mutation(api.models.projects.setVisibility, {
+    (await asUser(t, "other@example.com")).mutation(
+      api.models.projects.setVisibility,
+      {
         id,
         showOnLandingPage: false,
-      }),
+      },
+    ),
   ).rejects.toThrow("Forbidden");
 });
 

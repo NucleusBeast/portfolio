@@ -1,87 +1,62 @@
-import { ArrowLeft, ArrowUpRight, Ruler } from "lucide-react";
 import Link from "next/link";
+import { TuiBox } from "@/components/tui-box";
 
 const skeletonThumbs = ["01", "02", "03", "04"];
 
 export function ProjectDetailSkeleton() {
   return (
-    <main className="blueprint-page min-h-screen">
+    <main className="tui-page">
       <section
-        className="blueprint-shell blueprint-detail blueprint-detail-loading"
+        className="tui-shell tui-detail"
         aria-busy="true"
         aria-label="Loading project details"
       >
-        <Link href="/" className="blueprint-detail-back">
-          <ArrowLeft className="h-4 w-4" />
-          Back to home
+        <Link href="/#projects" className="tui-button">
+          ← cd ..
         </Link>
 
-        <header className="blueprint-detail-hero">
-          <div>
-            <div className="blueprint-kicker">
-              <Ruler className="h-4 w-4" />
-              Project sheet
-            </div>
-            <div className="blueprint-skeleton blueprint-skeleton-title" />
-            <div className="blueprint-skeleton blueprint-skeleton-title blueprint-skeleton-title-short" />
-          </div>
-
-          <div className="blueprint-detail-summary">
-            <div>
-              <div className="blueprint-skeleton blueprint-skeleton-line" />
-              <div className="blueprint-skeleton blueprint-skeleton-line" />
-              <div className="blueprint-skeleton blueprint-skeleton-line blueprint-skeleton-line-short" />
-            </div>
-            <div className="blueprint-detail-actions">
-              <div className="blueprint-skeleton blueprint-skeleton-action" />
-              <div className="blueprint-skeleton blueprint-skeleton-action blueprint-skeleton-action-secondary" />
-            </div>
-          </div>
+        <header className="tui-detail-hero">
+          <p className="tui-comment">
+            {"// loading project sheet"}
+            <span className="tui-ellipsis" />
+          </p>
+          <div className="tui-skeleton tui-skeleton-title" />
+          <div className="tui-skeleton tui-skeleton-line" />
+          <div className="tui-skeleton tui-skeleton-line tui-skeleton-short" />
         </header>
 
-        <div className="blueprint-detail-layout">
-          <section className="blueprint-detail-media">
-            <div className="blueprint-detail-media-top">
-              <span>Frame --</span>
-              <span>Loading captures</span>
+        <div className="tui-detail-layout">
+          <TuiBox
+            as="section"
+            title="frame --"
+            meta="loading"
+            bodyClassName="tui-detail-media"
+          >
+            <div className="tui-detail-frame">
+              <div className="tui-skeleton tui-skeleton-fill" />
             </div>
-            <div className="blueprint-detail-frame blueprint-detail-frame-loading">
-              <div className="blueprint-skeleton blueprint-skeleton-image" />
-            </div>
-            <div className="blueprint-detail-thumbs">
+            <div className="tui-detail-thumbs">
               {skeletonThumbs.map((label) => (
-                <div className="blueprint-detail-thumb" key={label}>
-                  <div className="blueprint-skeleton blueprint-skeleton-thumb" />
+                <div className="tui-detail-thumb" key={label}>
+                  <div className="tui-skeleton tui-skeleton-fill" />
                   <span>{label}</span>
                 </div>
               ))}
             </div>
-          </section>
+          </TuiBox>
 
-          <aside className="blueprint-detail-spec">
-            <div className="blueprint-detail-spec-head">
-              <span>Build notes</span>
-              <ArrowUpRight className="h-4 w-4" />
-            </div>
-            <dl>
-              {["Gallery", "Live URL", "Repository"].map((label) => (
+          <TuiBox as="aside" title="build-notes" meta="spec">
+            <dl className="tui-spec">
+              {["gallery", "live_url", "repository"].map((label) => (
                 <div key={label}>
                   <dt>{label}</dt>
                   <dd>
-                    <div className="blueprint-skeleton blueprint-skeleton-spec" />
+                    <div className="tui-skeleton tui-skeleton-spec" />
                   </dd>
                 </div>
               ))}
             </dl>
-
-            <div className="blueprint-detail-description">
-              <span>Description</span>
-              <div>
-                <div className="blueprint-skeleton blueprint-skeleton-line" />
-                <div className="blueprint-skeleton blueprint-skeleton-line blueprint-skeleton-line-short" />
-              </div>
-            </div>
-          </aside>
+          </TuiBox>
         </div>
       </section>
     </main>

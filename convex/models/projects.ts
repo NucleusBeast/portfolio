@@ -1,6 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "../_generated/server";
 import { requireAdmin } from "./auth";
+import {
+  deleteProject,
+  insertProject,
+  replaceProject,
+  toProjectView,
+} from "./projectStore";
 
 const projectValidator = v.object({
   _id: v.id("projects"),
@@ -44,27 +50,7 @@ export const list = query({
           .slice(0, 1000)
       : await ctx.db.query("projects").order("desc").take(1000);
 
-    return Promise.all(
-      projects.map(async (project) => {
-        const imageIds =
-          project.imageIds ?? (project.imageId ? [project.imageId] : []);
-        const imageUrls = await Promise.all(
-          imageIds.map(async (imageId) => ({
-            imageId,
-            imageUrl: await ctx.storage.getUrl(imageId),
-          })),
-        );
-
-        return {
-          ...project,
-          images: imageUrls,
-          imageUrls: imageUrls
-            .map((item) => item.imageUrl)
-            .filter((imageUrl): imageUrl is string => imageUrl !== null),
-          imageIds,
-        };
-      }),
-    );
+    return Promise.all(projects.map((project) => toProjectView(ctx, project)));
   },
 });
 
@@ -79,23 +65,7 @@ export const getById = query({
       return null;
     }
 
-    const imageIds =
-      project.imageIds ?? (project.imageId ? [project.imageId] : []);
-    const imageUrls = await Promise.all(
-      imageIds.map(async (imageId) => ({
-        imageId,
-        imageUrl: await ctx.storage.getUrl(imageId),
-      })),
-    );
-
-    return {
-      ...project,
-      images: imageUrls,
-      imageUrls: imageUrls
-        .map((item) => item.imageUrl)
-        .filter((imageUrl): imageUrl is string => imageUrl !== null),
-      imageIds,
-    };
+    return toProjectView(ctx, project);
   },
 });
 
@@ -112,14 +82,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
 
-    return ctx.db.insert("projects", {
-      title: args.title,
-      description: args.description,
-      url: args.url ?? "",
-      githubUrl: args.githubUrl,
-      imageIds: args.imageIds ?? [],
-      showOnLandingPage: args.showOnLandingPage ?? true,
-    });
+    return insertProject(ctx, args);
   },
 });
 
@@ -137,33 +100,8 @@ export const update = mutation({
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
 
-    const existingProject = await ctx.db.get(args.id);
-    if (!existingProject) {
-      throw new Error("Project not found");
-    }
-
-    const existingImageIds =
-      existingProject.imageIds ??
-      (existingProject.imageId ? [existingProject.imageId] : []);
-    const nextImageIds = args.imageIds ?? existingImageIds;
-
-    const removedImageIds = existingImageIds.filter(
-      (imageId) => !nextImageIds.includes(imageId),
-    );
-
-    await Promise.all(
-      removedImageIds.map((imageId) => ctx.storage.delete(imageId)),
-    );
-
-    await ctx.db.patch(args.id, {
-      title: args.title,
-      description: args.description,
-      url: args.url ?? "",
-      githubUrl: args.githubUrl,
-      imageIds: nextImageIds,
-      showOnLandingPage:
-        args.showOnLandingPage ?? existingProject.showOnLandingPage ?? true,
-    });
+    const { id, ...input } = args;
+    await replaceProject(ctx, id, input);
     return null;
   },
 });
@@ -197,17 +135,7 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
 
-    const project = await ctx.db.get(args.id);
-    if (!project) {
-      return null;
-    }
-
-    const imageIds =
-      project.imageIds ?? (project.imageId ? [project.imageId] : []);
-
-    await Promise.all(imageIds.map((imageId) => ctx.storage.delete(imageId)));
-
-    await ctx.db.delete(args.id);
+    await deleteProject(ctx, args.id);
     return null;
   },
 });
